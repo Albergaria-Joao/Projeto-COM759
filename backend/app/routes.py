@@ -1,17 +1,53 @@
-from flask import json, request, jsonify
+from flask import json, request, jsonify, render_template, redirect, session
 import flask
 from bson import json_util
 from app import app
 from app import db
 from bson.objectid import ObjectId
+import os
+import bcrypt
+
+
 @app.route('/')
 @app.route('/index')
 def index():
+    if session.get("nome") == None:
+        return redirect("/login")
+
     return flask.jsonify(json.loads(json_util.dumps(db.usuario.find({}).sort("_id", 1))))
 
-@app.route('/create', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    return render_template("login.html")
+
+
+def criar_membro():
+    membro = db["membro"]
+
+    password = "joao"
+    bytes_password = password.encode('utf-8')  # Convert to bytes
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(bytes_password, salt)
+    print(hashed_password)
+
+
+    novo_usuario = {
+        "nome": "João",
+        "login": "joao",
+        "email": "joao@gmail.com",
+        "senha": hashed_password
+    }
+
+    resultado = membro.insert_one(novo_usuario)
+    #
+
+@app.route('/create', methods=['GET', 'POST'])
 def create():
+    #
+    
     json_data = request.form.to_dict()
+    if request.method == 'GET':
+        return render_template("create.html")
     if json_data is not None:
         db.usuario.insert_one(json_data)
         return jsonify(mensagem='usuario criado')

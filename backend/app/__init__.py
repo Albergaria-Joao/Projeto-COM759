@@ -4,8 +4,12 @@ from flask_pymongo import PyMongo
 from flask_cors import CORS, cross_origin
 from dotenv import load_dotenv
 import os
+from pathlib import Path
 
-app = Flask(__name__)
+BASE_DIR = Path(__file__).resolve().parent.parent  # vai para 'backend'
+template_dir = BASE_DIR / "templates"
+
+app = Flask(__name__, template_folder=str(template_dir))
 app.config.from_object(Config)
 
 load_dotenv("../../.env")
@@ -16,4 +20,5 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 mongodb_client = PyMongo(app, 
                          uri=mongo_uri)
 db = mongodb_client.db
+
 from app import routes
