@@ -7,28 +7,48 @@ from bson.objectid import ObjectId
 import os
 import bcrypt
 
+salt = bcrypt.gensalt()
+def hashing(password, salt):
+    bytes_password = password.encode('utf-8')  # Convert to bytes
+    hashed_password = bcrypt.hashpw(bytes_password, salt)
+    print(hashed_password)
+    return hashed_password
 
 @app.route('/')
 @app.route('/index')
 def index():
     if session.get("nome") == None:
         return redirect("/login")
-
-    return flask.jsonify(json.loads(json_util.dumps(db.usuario.find({}).sort("_id", 1))))
+    return render_template("update.html")
+    #return flask.jsonify(json.loads(json_util.dumps(db.usuario.find({}).sort("_id", 1))))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template("login.html")
+    if (request.method == 'GET'):
+        return render_template("login.html")
+    
+    json_data = request.form.to_dict()
+    user = db.membro.find_one({"login": json_data["login"]})
+    print(user["senha"])
+    if (hashing(json_data["senha"], salt) == user["senha"]):
+        session["nome"] = user["nome"]
+        return redirect("/index")
+    else:
+        return redirect("/erro")
+    
+# @app.route('/erro', methods=['GET', 'POST'])
+# def login():
+#     print("ERRO")
+#     return render_template("erro.html")
+
+
 
 
 def criar_membro():
     membro = db["membro"]
 
     password = "joao"
-    bytes_password = password.encode('utf-8')  # Convert to bytes
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(bytes_password, salt)
-    print(hashed_password)
+    hashed_password = hashing(password, salt)
 
 
     novo_usuario = {
@@ -46,6 +66,7 @@ def create():
     #
     
     json_data = request.form.to_dict()
+    criar_membro()
     if request.method == 'GET':
         return render_template("create.html")
     if json_data is not None:
