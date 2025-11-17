@@ -19,8 +19,11 @@ def hashing(password, salt):
 def index():
     if session.get("nome") == None:
         return redirect("/login")
-    return render_template("update.html")
+    return render_template("dashboard.html", usuarios=db.usuario.find().sort("_id", 1))
     #return flask.jsonify(json.loads(json_util.dumps(db.usuario.find({}).sort("_id", 1))))
+
+
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -30,7 +33,7 @@ def login():
     json_data = request.form.to_dict()
     user = db.membro.find_one({"login": json_data["login"]})
     print(user["senha"])
-    if (hashing(json_data["senha"], salt) == user["senha"]):
+    if (hashing(json_data["senha"], user["senha"]) == user["senha"]):
         session["nome"] = user["nome"]
         return redirect("/index")
     else:

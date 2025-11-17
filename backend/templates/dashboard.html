@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <title>Alterando usuário</title>
+    <meta charset="UTF-8" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- <script>
+      $(document).ready(function () {
+        $("#submit").on("click", function () {
+          $.ajax({
+            url: "http://localhost:5000/update",
+            type: "POST",
+            dataType: "json",
+            data: $("#form").serialize(),
+            success: function (result) {
+              console.log(result);
+            },
+            error: function (xhr, resp, text) {
+              console.log(xhr, resp, text);
+            },
+          });
+        });
+      });
+    </script> -->
+  </head>
+  <body>
+    <table border="1">
+      <tr>
+        <th>Id</th>
+        <th>Nome</th>
+        <th>E-mail</th>
+      </tr>
+      {% for usuario in usuarios %}
+      <tr>
+        <td>{{ usuario.id }}</td>
+        <td>{{ usuario.nome }}</td>
+        <td>{{ usuario.email }}</td>
+      </tr>
+      {% endfor %}
+  </body>
+</html>
