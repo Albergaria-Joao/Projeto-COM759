@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <title>Alterando usuário</title>
+    <meta charset="UTF-8" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        const params = new URLSearchParams(window.location.search);
+
+        const id = params.get("id");
+        const nome = params.get("nome");
+        const descricao = params.get("descricao");
+
+        if (nome) {
+          $("input[name='nome']").val(nome);
+        }
+        if (descricao) {
+          $("input[name='descricao']").val(descricao);
+        }
+
+        $("#submit").on("click", function () {
+          let arr = $("#form").serializeArray();
+          let json_data = {};
+
+          // transforma em objeto
+          arr.forEach((item) => (json_data[item.name] = item.value));
+
+          // adiciona o id
+          json_data.id = id;
+          $.ajax({
+            url: "http://localhost:5000/update-tarefa",
+            type: "POST",
+            dataType: "json",
+            data: json_data,
+            success: function (result) {
+              alert("Tarefa atualizado com sucesso!");
+              window.location.href = "/";
+              console.log(result);
+            },
+            error: function (xhr, resp, text) {
+              console.log(xhr, resp, text);
+            },
+          });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <form id="form" action="" method="post">
+      Nome: <input type="text" name="nome" value="" size="50" /><br />
+      Descrição: <input type="text" name="descricao" value="" size="50" /><br />
+
+      <input id="submit" type="button" value="Enviar" />
+    </form>
+  </body>
+</html>

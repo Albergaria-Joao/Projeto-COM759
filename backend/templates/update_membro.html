@@ -1,19 +1,40 @@
 <!DOCTYPE html>
 <html lang="pt-br">
   <head>
-    <title>Criando usuário</title>
+    <title>Alterando usuário</title>
     <meta charset="UTF-8" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
       $(document).ready(function () {
+        const params = new URLSearchParams(window.location.search);
+
+        const id = params.get("id");
+        const nome = params.get("nome");
+        const email = params.get("email");
+
+        if (nome) {
+          $("input[name='nome']").val(nome);
+        }
+        if (email) {
+          $("input[name='email']").val(email);
+        }
+
         $("#submit").on("click", function () {
+          let arr = $("#form").serializeArray();
+          let json_data = {};
+
+          // transforma em objeto
+          arr.forEach((item) => (json_data[item.name] = item.value));
+
+          // adiciona o id
+          json_data.id = id;
           $.ajax({
-            url: "http://localhost:5000/create",
+            url: "http://localhost:5000/update-membro",
             type: "POST",
             dataType: "json",
-            data: $("#form").serialize(),
+            data: json_data,
             success: function (result) {
-              alert("Membro criado com sucesso!");
+              alert("Membro atualizado com sucesso!");
               window.location.href = "/";
               console.log(result);
             },
@@ -29,8 +50,7 @@
     <form id="form" action="" method="post">
       Nome: <input type="text" name="nome" value="" size="50" /><br />
       E-mail: <input type="text" name="email" value="" size="50" /><br />
-      Login: <input type="text" name="login" value="" size="50" /><br />
-      Senha: <input type="text" name="senha" value="" size="50" /><br />
+
       <input id="submit" type="button" value="Enviar" />
     </form>
   </body>
