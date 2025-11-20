@@ -6,7 +6,7 @@ from app import db
 from bson.objectid import ObjectId
 import os
 import bcrypt
-
+from datetime import datetime
 
 
 @app.route('/')
@@ -35,7 +35,8 @@ def index():
                 "nome": 1,
                 "descricao": 1,
                 "membro_login": "$membro_info.login",
-                "prazo": 1
+                "prazo": 1,
+                "criacao": 1,
             }
         }
     ]))
@@ -43,11 +44,6 @@ def index():
 
     return render_template("dashboard.html", membros=db.membro.find().sort("_id", 1), tarefas=tarefas)
     #return flask.jsonify(json.loads(json_util.dumps(db.membro.find({}).sort("_id", 1))))
-
-
-
-
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -97,6 +93,8 @@ def create_membro():
         return render_template("create_membro.html")
     if json_data is not None:
         #db.membro.insert_one(json_data)
+        if db.membro.find_one({"login": json_data["login"]}) is not None:
+            return jsonify(mensagem='membro já existe')
         criar_membro_db(json_data)
         return jsonify(mensagem='membro criado')
     else:
@@ -115,6 +113,10 @@ def create_tarefa():
     
     json_data = request.form.to_dict()
     json_data["membro_id"] = ObjectId(json_data["membro_id"]) 
+    now = datetime.now()
+    json_data["criacao"] = now.strftime("%Y-%m-%dT%H:%M")
+    #json_data["criacao"] = now
+    print(json_data)
     if json_data is not None:
         db.tarefa.insert_one(json_data)
         return jsonify(mensagem='tarefa criada')
@@ -152,7 +154,9 @@ def get_tarefas():
             "$project": {
                 "nome": 1,
                 "descricao": 1,
-                "membro_login": "$membro_info.login"
+                "membro_login": "$membro_info.login",
+                "prazo": 1,
+                "criacao": 1,
             }
         }
     ]))
@@ -189,7 +193,6 @@ def update_tarefa():
         return jsonify(mensagem='tarefa atualizado')
     else:
         return jsonify(mensagem='tarefa não atualizado')
-
 
 
 @app.route("/delete-membro/<string:membroId>", methods=['POST'])

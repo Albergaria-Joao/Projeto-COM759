@@ -34,7 +34,7 @@
             dataType: "json",
             data: json_data,
             success: function (result) {
-              alert("Membro atualizado com sucesso!");
+              alert(result.mensagem);
               window.location.href = "/";
               console.log(result);
             },

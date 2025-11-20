@@ -35,7 +35,7 @@
             dataType: "json",
             data: $("#form").serialize(),
             success: function (result) {
-              alert("tarefa criado com sucesso!");
+              alert(result.mensagem);
               window.location.href = "/";
               console.log(result);
             },
