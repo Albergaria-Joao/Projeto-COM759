@@ -11,6 +11,8 @@
         const id = params.get("id");
         const nome = params.get("nome");
         const descricao = params.get("descricao");
+        const membro_login = params.get("membro_login");
+        const prazo = params.get("prazo");
 
         if (nome) {
           $("input[name='nome']").val(nome);
@@ -18,6 +20,39 @@
         if (descricao) {
           $("input[name='descricao']").val(descricao);
         }
+
+        if (prazo) {
+          $("input[name='prazo']").val(prazo);
+        }
+
+        $.ajax({
+          url: "http://localhost:5000/get-membros",
+          type: "POST",
+          dataType: "json",
+          data: $("#form").serialize(),
+          success: function (result) {
+            //alert("tarefa criado com sucesso!");
+            const select = $("#membro-select");
+            result.forEach((m) => {
+              select.append(
+                `<option value="${m._id.$oid}">${m.login}</option>`
+              );
+            });
+
+            if (membro_login) {
+              //$("#membro-select").val("membro_login");
+              $("#mySelect").val(membro_login).change();
+              console.log($("#membro-select").val());
+            }
+
+            //console.log(membros);
+            //window.location.href = "/";
+            console.log(result);
+          },
+          error: function (xhr, resp, text) {
+            console.log(xhr, resp, text);
+          },
+        });
 
         $("#submit").on("click", function () {
           let arr = $("#form").serializeArray();
@@ -50,7 +85,13 @@
     <form id="form" action="" method="post">
       Nome: <input type="text" name="nome" value="" size="50" /><br />
       Descrição: <input type="text" name="descricao" value="" size="50" /><br />
-
+      Membro:
+      <select name="membro_id" id="membro-select">
+        <option value="">--Escolha um membro--</option>
+      </select>
+      <br />
+      Prazo:
+      <input type="datetime-local" id="prazo-input" name="prazo" />
       <input id="submit" type="button" value="Enviar" />
     </form>
   </body>

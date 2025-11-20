@@ -34,7 +34,8 @@ def index():
             "$project": {
                 "nome": 1,
                 "descricao": 1,
-                "membro_login": "$membro_info.login"
+                "membro_login": "$membro_info.login",
+                "prazo": 1
             }
         }
     ]))
@@ -179,10 +180,11 @@ def update_tarefa():
         return render_template("update_tarefa.html")
 
     json_data = request.form.to_dict()
+    json_data["membro_id"] = ObjectId(json_data["membro_id"]) 
     print(json_data)
     if json_data is not None and db.tarefa.find_one({"_id": ObjectId(json_data["id"])}) is not None:
         db.tarefa.update_one({'_id': ObjectId(json_data["id"])}, 
-                              {"$set": {'nome': json_data["nome"], 'descricao': json_data["descricao"]}})
+                              {"$set": {'nome': json_data["nome"], 'descricao': json_data["descricao"], 'prazo': json_data["prazo"], 'membro_id': json_data["membro_id"]}})
         print("atualizou!!!")
         return jsonify(mensagem='tarefa atualizado')
     else:
