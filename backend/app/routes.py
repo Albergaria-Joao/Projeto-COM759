@@ -37,6 +37,7 @@ def index():
                 "membro_login": "$membro_info.login",
                 "prazo": 1,
                 "criacao": 1,
+                "conclusao": 1
             }
         }
     ]))
@@ -157,6 +158,7 @@ def get_tarefas():
                 "membro_login": "$membro_info.login",
                 "prazo": 1,
                 "criacao": 1,
+                "conclusao": 1
             }
         }
     ]))
@@ -193,6 +195,21 @@ def update_tarefa():
         return jsonify(mensagem='tarefa atualizado')
     else:
         return jsonify(mensagem='tarefa não atualizado')
+
+
+@app.route('/concluir-tarefa/<string:tarefaId>', methods=['POST'])
+def concluir_tarefa(tarefaId):
+
+    json_data = request.form.to_dict()
+    now = datetime.now()
+    now_format = now.strftime("%Y-%m-%dT%H:%M")
+    print(json_data)
+    db.tarefa.update_one({'_id': ObjectId(tarefaId)}, 
+                            {"$set": {'conclusao': now_format}})
+    print("atualizou!!!")
+    return jsonify(mensagem='tarefa atualizado')
+    # else:
+    #     return jsonify(mensagem='tarefa não atualizado')
 
 
 @app.route("/delete-membro/<string:membroId>", methods=['POST'])

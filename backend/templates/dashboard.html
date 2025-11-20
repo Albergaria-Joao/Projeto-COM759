@@ -59,6 +59,25 @@
           });
         });
 
+        $(".concluir-tarefa-btn").on("click", function () {
+          const id = $(this).data("id");
+          console.log(`Deletando a tarefa com id: ${id}`);
+          $.ajax({
+            url: `http://localhost:5000/concluir-tarefa/${id}`,
+            type: "POST",
+            dataType: "json",
+            data: "",
+            success: function (result) {
+              window.location.href = "/";
+              console.log(result);
+            },
+            error: function (xhr, resp, text) {
+              console.log(xhr, resp, text);
+            },
+          });
+        });
+
+
       });
     </script>
   </head>
@@ -102,6 +121,7 @@
         <th>Prazo</th>
       </tr>
       {% for tarefa in tarefas %}
+      {% if not tarefa.conclusao %}
       <tr>
         <td>{{ tarefa._id }}</td>
         <td>{{ tarefa.nome }}</td>
@@ -122,6 +142,7 @@
           <button class="concluir-tarefa-btn" data-id="{{ tarefa._id }}">CONCLUIR</button>
         </td>
       </tr>
+      {% endif %}
       {% endfor %}
     </table>
     <a href="/create-tarefa"><button>CRIAR TAREFA</button></a>
