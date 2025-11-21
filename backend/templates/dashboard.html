@@ -142,7 +142,7 @@
         </td>
         <td>
           <a
-            href="/update-membro?id={{ membro._id }}&nome={{ membro.nome }}&email={{ membro.email }}"
+            href="/update-membro?id={{ membro._id }}"
             ><button class="update-membro-btn">UPDATE</button></a
           >
         </td>
@@ -162,6 +162,7 @@
         <th>Nome</th>
         <th>Descrição</th>
         <th>Responsável</th>
+        <th>Equipe</th>
         <th>Criação</th>
         <th>Prazo</th>
       </tr>
@@ -172,6 +173,7 @@
         <td>{{ tarefa.nome }}</td>
         <td>{{ tarefa.descricao }}</td>
         <td>{{ tarefa.membro_login }}</td>
+        <td>{{ tarefa.equipe_nome }}</td>
         <td>{{ tarefa.criacao }}</td>
         <td>{{ tarefa.prazo }}</td>
         {% if session.admin %}
@@ -180,7 +182,7 @@
         </td>
         <td>
           <a
-            href="/update-tarefa?id={{ tarefa._id }}&nome={{ tarefa.nome }}&descricao={{ tarefa.descricao }}&membro_login={{ tarefa.membro_login }}&prazo={{ tarefa.prazo }}"
+            href="/update-tarefa?id={{ tarefa._id }}"
             ><button class="update-tarefa-btn">UPDATE</button></a
           >
         </td>
@@ -208,16 +210,13 @@
         <td>{{ equipe._id }}</td>
         <td>{{ equipe.nome }}</td>
         <td>{{ equipe.descricao }}</td>
-        <td>{{ equipe.membro_login }}</td>
-        <td>{{ equipe.criacao }}</td>
-        <td>{{ equipe.prazo }}</td>
         {% if session.admin %}
         <td>
           <button class="delete-equipe-btn" data-id="{{ equipe._id }}">DELETE</button>
         </td>
         <td>
           <a
-            href="/update-equipe?id={{ equipe._id }}&nome={{ equipe.nome }}&descricao={{ equipe.descricao }}"
+            href="/update-equipe?id={{ equipe._id }}"
             ><button class="update-equipe-btn">UPDATE</button></a
           >
         </td>

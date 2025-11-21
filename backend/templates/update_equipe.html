@@ -9,15 +9,25 @@
         const params = new URLSearchParams(window.location.search);
 
         const id = params.get("id");
-        const nome = params.get("nome");
-        const descricao = params.get("descricao");
 
-        if (nome) {
-          $("input[name='nome']").val(nome);
-        }
-        if (descricao) {
-          $("input[name='descricao']").val(descricao);
-        }
+        $.ajax({
+          url: `http://localhost:5000/get-equipes/${id}`,
+          type: "POST",
+          dataType: "json",
+          data: "",
+          success: function (result) {
+            //alert("tarefa criado com sucesso!");
+            console.log(result);
+            $("input[name='nome']").val(result.nome);
+
+            $("input[name='descricao']").val(result.descricao);
+            //window.location.href = "/";
+            console.log(result);
+          },
+          error: function (xhr, resp, text) {
+            console.log(xhr, resp, text);
+          },
+        });
 
         $("#submit").on("click", function () {
           let arr = $("#form").serializeArray();

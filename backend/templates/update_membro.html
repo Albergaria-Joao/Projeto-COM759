@@ -9,15 +9,48 @@
         const params = new URLSearchParams(window.location.search);
 
         const id = params.get("id");
-        const nome = params.get("nome");
-        const email = params.get("email");
 
-        if (nome) {
-          $("input[name='nome']").val(nome);
-        }
-        if (email) {
-          $("input[name='email']").val(email);
-        }
+        $.ajax({
+          url: "http://localhost:5000/get-equipes",
+          type: "POST",
+          dataType: "json",
+          data: "",
+          success: function (result) {
+            //alert("tarefa criado com sucesso!");
+            const select = $("#equipe-select");
+            result.forEach((e) => {
+              select.append(`<option value="${e._id.$oid}">${e.nome}</option>`);
+            });
+            //window.location.href = "/";
+            console.log(result);
+          },
+          error: function (xhr, resp, text) {
+            console.log(xhr, resp, text);
+          },
+        });
+
+        $.ajax({
+          url: `http://localhost:5000/get-membros/${id}`,
+          type: "POST",
+          dataType: "json",
+          data: "",
+          success: function (result) {
+            //alert("tarefa criado com sucesso!");
+
+            $("input[name='nome']").val(result.nome);
+
+            $("input[name='email']").val(result.email);
+            $("select[name='equipe_id']").val(result.equipe_id.$oid);
+            console.log(result.admin);
+            $("input[name='admin']").prop("checked", result.admin);
+
+            //window.location.href = "/";
+            console.log(result);
+          },
+          error: function (xhr, resp, text) {
+            console.log(xhr, resp, text);
+          },
+        });
 
         $("#submit").on("click", function () {
           let arr = $("#form").serializeArray();
@@ -50,6 +83,10 @@
     <form id="form" action="" method="post">
       Nome: <input type="text" name="nome" value="" size="50" /><br />
       E-mail: <input type="text" name="email" value="" size="50" /><br />
+      Equipe:
+      <select name="equipe_id" id="equipe-select">
+        <option value="">--Escolha uma equipe--</option>
+      </select>
       <input type="checkbox" name="admin" /> Admin <br />
       <input id="submit" type="button" value="Enviar" />
     </form>

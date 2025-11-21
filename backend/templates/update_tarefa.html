@@ -9,43 +9,81 @@
         const params = new URLSearchParams(window.location.search);
 
         const id = params.get("id");
-        const nome = params.get("nome");
-        const descricao = params.get("descricao");
-        const membro_login = params.get("membro_login");
-        const prazo = params.get("prazo");
-
-        if (nome) {
-          $("input[name='nome']").val(nome);
-        }
-        if (descricao) {
-          $("input[name='descricao']").val(descricao);
-        }
-
-        if (prazo) {
-          $("input[name='prazo']").val(prazo);
-        }
 
         $.ajax({
-          url: "http://localhost:5000/get-membros",
+          url: "http://localhost:5000/get-equipes",
           type: "POST",
           dataType: "json",
-          data: $("#form").serialize(),
+          data: "",
           success: function (result) {
             //alert("tarefa criado com sucesso!");
-            const select = $("#membro-select");
-            result.forEach((m) => {
-              select.append(
-                `<option value="${m._id.$oid}">${m.login}</option>`
-              );
+            const select = $("#equipe-select");
+            result.forEach((e) => {
+              select.append(`<option value="${e._id.$oid}">${e.nome}</option>`);
             });
+            //window.location.href = "/";
+            console.log(result);
+          },
+          error: function (xhr, resp, text) {
+            console.log(xhr, resp, text);
+          },
+        });
 
-            if (membro_login) {
-              //$("#membro-select").val("membro_login");
-              $("#mySelect").val(membro_login).change();
-              console.log($("#membro-select").val());
-            }
+        function preencherMembros(callback) {
+          $.ajax({
+            url: "http://localhost:5000/get-membros",
+            type: "POST",
+            dataType: "json",
+            data: { equipe_id: $("#equipe-select").val() },
+            success: function (result) {
+              //alert("tarefa criado com sucesso!");
+              const select = $("#membro-select");
+              result.forEach((m) => {
+                select.append(
+                  `<option value="${m._id.$oid}">${m.login}</option>`
+                );
+              });
+              //window.location.href = "/";
+              console.log(result);
 
-            //console.log(membros);
+              if (callback) callback(); // Precisa usar esse callback, senão ele não espera preencher e tenta já selecionar quando pega os dados
+            },
+            error: function (xhr, resp, text) {
+              console.log(xhr, resp, text);
+            },
+          });
+        }
+
+        $("#equipe-select").on("change", function () {
+          console.log($("#equipe-select").val());
+          $("#membro-select").empty();
+          $("#membro-select").append(
+            `<option value="">--Escolha um membro--</option>`
+          );
+          preencherMembros();
+        });
+
+        $.ajax({
+          url: `http://localhost:5000/get-tarefas/${id}`,
+          type: "POST",
+          dataType: "json",
+          data: "",
+          success: function (result) {
+            //alert("tarefa criado com sucesso!");
+
+            $("input[name='nome']").val(result.nome);
+            $("input[name='descricao']").val(result.descricao);
+
+            $("input[name='email']").val(result.email);
+            $("select[name='equipe_id']").val(result.equipe_id.$oid);
+            preencherMembros();
+
+            // Preenche os membros, e só depois seleciona
+            preencherMembros(function () {
+              $("select[name='membro_id']").val(result.membro_id.$oid);
+            });
+            $("input[name='prazo']").val(result.prazo);
+
             //window.location.href = "/";
             console.log(result);
           },
@@ -85,6 +123,11 @@
     <form id="form" action="" method="post">
       Nome: <input type="text" name="nome" value="" size="50" /><br />
       Descrição: <input type="text" name="descricao" value="" size="50" /><br />
+      Equipe:
+      <select name="equipe_id" id="equipe-select">
+        <option value="">--Escolha uma equipe--</option>
+      </select>
+      <br />
       Membro:
       <select name="membro_id" id="membro-select">
         <option value="">--Escolha um membro--</option>
