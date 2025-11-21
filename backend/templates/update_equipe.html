@@ -10,13 +10,13 @@
 
         const id = params.get("id");
         const nome = params.get("nome");
-        const email = params.get("email");
+        const descricao = params.get("descricao");
 
         if (nome) {
           $("input[name='nome']").val(nome);
         }
-        if (email) {
-          $("input[name='email']").val(email);
+        if (descricao) {
+          $("input[name='descricao']").val(descricao);
         }
 
         $("#submit").on("click", function () {
@@ -29,7 +29,7 @@
           // adiciona o id
           json_data.id = id;
           $.ajax({
-            url: "http://localhost:5000/update-membro",
+            url: "http://localhost:5000/update-equipe",
             type: "POST",
             dataType: "json",
             data: json_data,
@@ -49,8 +49,7 @@
   <body>
     <form id="form" action="" method="post">
       Nome: <input type="text" name="nome" value="" size="50" /><br />
-      E-mail: <input type="text" name="email" value="" size="50" /><br />
-      <input type="checkbox" name="admin" /> Admin <br />
+      Descrição: <input type="text" name="descricao" value="" size="50" /><br />
       <input id="submit" type="button" value="Enviar" />
     </form>
   </body>

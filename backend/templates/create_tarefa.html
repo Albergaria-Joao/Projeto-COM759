@@ -10,7 +10,7 @@
           url: "http://localhost:5000/get-membros",
           type: "POST",
           dataType: "json",
-          data: $("#form").serialize(),
+          data: "",
           success: function (result) {
             //alert("tarefa criado com sucesso!");
             const select = $("#membro-select");
@@ -51,6 +51,11 @@
     <form id="form" action="" method="post">
       Nome: <input type="text" name="nome" value="" size="50" /><br />
       Descrição: <input type="text" name="descricao" value="" size="50" /><br />
+      Equipe:
+      <select name="equipe_id" id="equipe-select">
+        <option value="">--Escolha uma equipe--</option>
+      </select>
+      <br />
       Membro:
       <select name="membro_id" id="membro-select">
         <option value="">--Escolha um membro--</option>

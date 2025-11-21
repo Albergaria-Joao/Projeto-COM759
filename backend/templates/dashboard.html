@@ -41,6 +41,25 @@
           });
         });
 
+        $(".reset-senha-btn").on("click", function () {
+          const id = $(this).data("id");
+          console.log(`Deletando o membro com id: ${id}`);
+          $.ajax({
+            url: `http://localhost:5000/reset-senha/${id}`,
+            type: "POST",
+            dataType: "json",
+            data: "",
+            success: function (result) {
+              alert(result.mensagem);
+              window.location.href = "/";
+              console.log(result);
+            },
+            error: function (xhr, resp, text) {
+              console.log(xhr, resp, text);
+            },
+          });
+        });
+
         $(".delete-tarefa-btn").on("click", function () {
           const id = $(this).data("id");
           console.log(`Deletando a tarefa com id: ${id}`);
@@ -78,6 +97,25 @@
         });
 
 
+        $(".delete-equipe-btn").on("click", function () {
+          const id = $(this).data("id");
+          console.log(`Deletando a equipe com id: ${id}`);
+          $.ajax({
+            url: `http://localhost:5000/delete-equipe/${id}`,
+            type: "POST",
+            dataType: "json",
+            data: "",
+            success: function (result) {
+              window.location.href = "/";
+              console.log(result);
+            },
+            error: function (xhr, resp, text) {
+              console.log(xhr, resp, text);
+            },
+          });
+        });
+
+
       });
     </script>
   </head>
@@ -89,6 +127,7 @@
         <th>Login</th>
         <th>Nome</th>
         <th>E-mail</th>
+        <th>Equipe</th>
       </tr>
       {% for membro in membros %}
       <tr>
@@ -96,6 +135,8 @@
         <td>{{ membro.login }}</td>
         <td>{{ membro.nome }}</td>
         <td>{{ membro.email }}</td>
+        <td>{{ membro.equipe_nome }}</td>
+        {% if session.admin %}
         <td>
           <button class="delete-membro-btn" data-id="{{ membro._id }}">DELETE</button>
         </td>
@@ -105,6 +146,10 @@
             ><button class="update-membro-btn">UPDATE</button></a
           >
         </td>
+        <td>
+          <button class="reset-senha-btn" data-id="{{ membro._id }}">RESET</button>
+        </td>
+        {% endif %}
       </tr>
       {% endfor %}
     </table>
@@ -129,6 +174,7 @@
         <td>{{ tarefa.membro_login }}</td>
         <td>{{ tarefa.criacao }}</td>
         <td>{{ tarefa.prazo }}</td>
+        {% if session.admin %}
         <td>
           <button class="delete-tarefa-btn" data-id="{{ tarefa._id }}">DELETE</button>
         </td>
@@ -138,13 +184,49 @@
             ><button class="update-tarefa-btn">UPDATE</button></a
           >
         </td>
+        {% endif %}
         <td>
           <button class="concluir-tarefa-btn" data-id="{{ tarefa._id }}">CONCLUIR</button>
         </td>
+        
       </tr>
       {% endif %}
       {% endfor %}
     </table>
     <a href="/create-tarefa"><button>CRIAR TAREFA</button></a>
+  </br>
+  </br>
+    <table>
+      <tr>
+        <th>Id</th>
+        <th>Nome</th>
+        <th>Descrição</th>
+      </tr>
+      {% for equipe in equipes %}
+      {% if not equipe.conclusao %}
+      <tr>
+        <td>{{ equipe._id }}</td>
+        <td>{{ equipe.nome }}</td>
+        <td>{{ equipe.descricao }}</td>
+        <td>{{ equipe.membro_login }}</td>
+        <td>{{ equipe.criacao }}</td>
+        <td>{{ equipe.prazo }}</td>
+        {% if session.admin %}
+        <td>
+          <button class="delete-equipe-btn" data-id="{{ equipe._id }}">DELETE</button>
+        </td>
+        <td>
+          <a
+            href="/update-equipe?id={{ equipe._id }}&nome={{ equipe.nome }}&descricao={{ equipe.descricao }}"
+            ><button class="update-equipe-btn">UPDATE</button></a
+          >
+        </td>
+        {% endif %}
+        
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </table>
+    <a href="/create-equipe"><button>CRIAR EQUIPE</button></a>
   </body>
 </html>

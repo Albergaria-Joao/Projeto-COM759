@@ -6,6 +6,26 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
       $(document).ready(function () {
+        $.ajax({
+          url: "http://localhost:5000/get-equipes",
+          type: "POST",
+          dataType: "json",
+          data: "",
+          success: function (result) {
+            //alert("tarefa criado com sucesso!");
+            const select = $("#equipe-select");
+            result.forEach((e) => {
+              select.append(`<option value="${e._id.$oid}">${e.nome}</option>`);
+            });
+            console.log(membros);
+            //window.location.href = "/";
+            console.log(result);
+          },
+          error: function (xhr, resp, text) {
+            console.log(xhr, resp, text);
+          },
+        });
+
         $("#submit").on("click", function () {
           $.ajax({
             url: "http://localhost:5000/create-membro",
@@ -31,7 +51,11 @@
       Senha: <input type="text" name="senha" value="" size="50" /><br />
       Nome: <input type="text" name="nome" value="" size="50" /><br />
       E-mail: <input type="text" name="email" value="" size="50" /><br />
-
+      Equipe:
+      <select name="equipe_id" id="equipe-select">
+        <option value="">--Escolha uma equipe--</option>
+      </select>
+      <input type="checkbox" name="admin" /> Admin <br />
       <input id="submit" type="button" value="Enviar" />
     </form>
   </body>

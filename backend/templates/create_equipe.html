@@ -1,38 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-br">
   <head>
-    <title>Alterando usuário</title>
+    <title>Criando usuário</title>
     <meta charset="UTF-8" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
       $(document).ready(function () {
-        const params = new URLSearchParams(window.location.search);
-
-        const id = params.get("id");
-        const nome = params.get("nome");
-        const email = params.get("email");
-
-        if (nome) {
-          $("input[name='nome']").val(nome);
-        }
-        if (email) {
-          $("input[name='email']").val(email);
-        }
-
         $("#submit").on("click", function () {
-          let arr = $("#form").serializeArray();
-          let json_data = {};
-
-          // transforma em objeto
-          arr.forEach((item) => (json_data[item.name] = item.value));
-
-          // adiciona o id
-          json_data.id = id;
           $.ajax({
-            url: "http://localhost:5000/update-membro",
+            url: "http://localhost:5000/create-equipe",
             type: "POST",
             dataType: "json",
-            data: json_data,
+            data: $("#form").serialize(),
             success: function (result) {
               alert(result.mensagem);
               window.location.href = "/";
@@ -49,8 +28,8 @@
   <body>
     <form id="form" action="" method="post">
       Nome: <input type="text" name="nome" value="" size="50" /><br />
-      E-mail: <input type="text" name="email" value="" size="50" /><br />
-      <input type="checkbox" name="admin" /> Admin <br />
+      Descrição: <input type="text" name="descricao" value="" size="50" /><br />
+
       <input id="submit" type="button" value="Enviar" />
     </form>
   </body>

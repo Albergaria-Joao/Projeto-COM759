@@ -7,13 +7,27 @@ from bson.objectid import ObjectId
 import os
 import bcrypt
 from datetime import datetime
+from functools import wraps
+import random
 
+def admin_auth(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if "admin" not in session or session["admin"] is False:
+            return jsonify(mensagem="Ação não autorizada")
+        return f(*args, **kwargs)
+    return wrapper
+
+@app.before_request
+def verificar_login():
+    rotas_livres = ["login", "static"]  # rotas que não exigem login
+
+    if request.endpoint not in rotas_livres and "username" not in session:
+        return redirect("/login")
 
 @app.route('/')
 @app.route('/index')
 def index():
-    if session.get("nome") == None:
-        return redirect("/login")
     
     tarefas = list(db.tarefa.aggregate([
         {
@@ -42,14 +56,46 @@ def index():
         }
     ]))
 
+    membros = list(db.membro.aggregate([
+        {
+            "$lookup": {
+                "from": "equipe",
+                "localField": "equipe_id",
+                "foreignField": "_id",
+                "as": "equipe_info"
+            }
+        },
+        {
+            "$unwind": {
+                "path": "$equipe_info",
+                "preserveNullAndEmptyArrays": True
+            }
+        },
+        {
+            "$project": {
+                "_id": 1,
+                "login": 1,
+                "nome": 1,
+                "email": 1,
+                "senha": 1,
+                "equipe_nome": "$equipe_info.nome",
+            }
+        }
+    ]))
 
-    return render_template("dashboard.html", membros=db.membro.find().sort("_id", 1), tarefas=tarefas)
+    print(dict(session))
+
+    return render_template("dashboard.html", membros=membros, tarefas=tarefas, equipes=db.equipe.find().sort("_id", 1))
     #return flask.jsonify(json.loads(json_util.dumps(db.membro.find({}).sort("_id", 1))))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if session.get("username") != None:
+        return redirect("/index")
     if (request.method == 'GET'):
         return render_template("login.html")
+    
+    
     
     json_data = request.form.to_dict()
     print(json_data)
@@ -57,14 +103,19 @@ def login():
     print(user)
     #print(user["senha"])
     if (hashing(json_data["senha"], user["senha"]) == user["senha"]):
+        session["username"] = user["login"]
         session["nome"] = user["nome"]
+        session["admin"] = False
+        if user.get("admin") is not None:
+            session["admin"] = True
+            
         return redirect("/index")
     else:
         return redirect("/erro")
     
 @app.route('/logout', methods=['POST'])
 def logout():
-    session.pop("nome", None)
+    session.clear()
     return jsonify(mensagem='logout realizado')
 
     
@@ -87,31 +138,111 @@ def criar_membro_db(dados):
     #
 
 @app.route('/create-membro', methods=['GET', 'POST'])
+@admin_auth
 def create_membro():
     json_data = request.form.to_dict()
     #criar_membro()
     if request.method == 'GET':
         return render_template("create_membro.html")
+
     if json_data is not None:
         #db.membro.insert_one(json_data)
         if db.membro.find_one({"login": json_data["login"]}) is not None:
             return jsonify(mensagem='membro já existe')
+
+        json_data["equipe_id"] = ObjectId(json_data["equipe_id"]) 
         criar_membro_db(json_data)
         return jsonify(mensagem='membro criado')
     else:
         return jsonify(mensagem='membro não criado')
     
+@app.route('/get-membros', methods=['POST'])
+def get_membros():
+
+    membros = list(db.membro.aggregate([
+        {
+            "$lookup": {
+                "from": "equipe",
+                "localField": "equipe_id",
+                "foreignField": "_id",
+                "as": "equipe_info"
+            }
+        },
+        {
+            "$unwind": {
+                "path": "$equipe_info",
+                "preserveNullAndEmptyArrays": True
+            }
+        },
+        {
+            "$project": {
+                "_id": 1,
+                "login": 1,
+                "nome": 1,
+                "email": 1,
+                "senha": 1,
+                "equipe_nome": "$equipe_info.nome",
+            }
+        }
+    ]))
+
+    return jsonify(json.loads(json_util.dumps(membros)))
+
+    #return flask.jsonify(json.loads(json_util.dumps(db.membro.find({}).sort("login", 1))))
+
+@app.route('/update-membro', methods=['GET', 'POST'])
+@admin_auth
+def update_membro():
+    if request.method == 'GET':
+        return render_template("update_membro.html")
+
+    json_data = request.form.to_dict()
+    print(json_data)
+    if json_data is not None and db.membro.find_one({"_id": ObjectId(json_data["id"])}) is not None:
+        db.membro.update_one({'_id': ObjectId(json_data["id"])}, 
+                              {"$set": {'nome': json_data["nome"], 'email': json_data["email"]}})
+        return jsonify(mensagem='membro atualizado')
+    else:
+        return jsonify(mensagem='membro não atualizado')
+    
+@app.route("/reset-senha/<string:membroId>", methods=['POST'])
+@admin_auth
+def reset_senha(membroId):
+
+    senha = str(random.randint(100000, 999999))
+    hashed = hashing(senha, salt)
+
+    if db.membro.find_one({"_id": ObjectId(membroId)}) is not None:
+        db.membro.update_one({'_id': ObjectId(membroId)}, 
+                              {"$set": {'senha': hashed }})
+        return jsonify(mensagem=f'NOVA SENHA: {senha}')
+    else:
+        return jsonify(mensagem='Senha NÃO resetada')
+    
+@app.route("/delete-membro/<string:membroId>", methods=['POST'])
+@admin_auth
+def delete_membro(membroId):
+
+    
+    result = db.membro.delete_one({"_id": ObjectId(membroId)})
+    
+    if(result.deleted_count > 0):
+        return jsonify(mensagem='membro removido')
+    else:
+        return jsonify(mensagem='membro não removido')
 
 
-    #
+# TAREFA
+
 
 @app.route('/create-tarefa', methods=['GET', 'POST'])
+@admin_auth
 def create_tarefa():
     
     #criar_membro()
     if request.method == 'GET':
         return render_template("create_tarefa.html")
-    
+
     json_data = request.form.to_dict()
     json_data["membro_id"] = ObjectId(json_data["membro_id"]) 
     now = datetime.now()
@@ -123,15 +254,6 @@ def create_tarefa():
         return jsonify(mensagem='tarefa criada')
     else:
         return jsonify(mensagem='tarefa não criada')
-    
-@app.route('/get-membros', methods=['POST'])
-def get_membros():
-    return flask.jsonify(json.loads(json_util.dumps(db.membro.find({}).sort("_id", 1))))
-    
-# @app.route("/get-membro/<string:membroId>")
-# def getid(membroId):
-#     membro = db.membro.find_one({"_id": ObjectId(membroId)})
-#     return flask.jsonify(json.loads(json_util.dumps(membro)))
 
 
 @app.route('/get-tarefas', methods=['POST'])
@@ -165,25 +287,13 @@ def get_tarefas():
 
     return jsonify(json.loads(json_util.dumps(tarefas)))
 
-
-@app.route('/update-membro', methods=['GET', 'POST'])
-def update_membro():
-    if request.method == 'GET':
-        return render_template("update_membro.html")
-
-    json_data = request.form.to_dict()
-    print(json_data)
-    if json_data is not None and db.membro.find_one({"_id": ObjectId(json_data["id"])}) is not None:
-        db.membro.update_one({'_id': ObjectId(json_data["id"])}, 
-                              {"$set": {'nome': json_data["nome"], 'email': json_data["email"]}})
-        return jsonify(mensagem='membro atualizado')
-    else:
-        return jsonify(mensagem='membro não atualizado')
     
 @app.route('/update-tarefa', methods=['GET', 'POST'])
+@admin_auth
 def update_tarefa():
     if request.method == 'GET':
         return render_template("update_tarefa.html")
+    
 
     json_data = request.form.to_dict()
     json_data["membro_id"] = ObjectId(json_data["membro_id"]) 
@@ -204,6 +314,7 @@ def concluir_tarefa(tarefaId):
     now = datetime.now()
     now_format = now.strftime("%Y-%m-%dT%H:%M")
     print(json_data)
+
     db.tarefa.update_one({'_id': ObjectId(tarefaId)}, 
                             {"$set": {'conclusao': now_format}})
     print("atualizou!!!")
@@ -211,19 +322,63 @@ def concluir_tarefa(tarefaId):
     # else:
     #     return jsonify(mensagem='tarefa não atualizado')
 
-
-@app.route("/delete-membro/<string:membroId>", methods=['POST'])
-def delete_membro(membroId):
-    result = db.membro.delete_one({"_id": ObjectId(membroId)})
-    if(result.deleted_count > 0):
-        return jsonify(mensagem='membro removido')
-    else:
-        return jsonify(mensagem='membro não removido')
-
 @app.route("/delete-tarefa/<string:tarefaId>", methods=['POST'])
-def tarefa_membro(tarefaId):
+@admin_auth
+def delete_tarefa(tarefaId):
+    
     result = db.tarefa.delete_one({"_id": ObjectId(tarefaId)})
     if(result.deleted_count > 0):
         return jsonify(mensagem='tarefa removido')
     else:
         return jsonify(mensagem='tarefa não removido')
+
+
+# EQUIPE
+
+@app.route('/create-equipe', methods=['GET', 'POST'])
+@admin_auth
+def create_equipe():
+    
+    #criar_membro()
+    if request.method == 'GET':
+        return render_template("create_equipe.html")
+
+    json_data = request.form.to_dict()
+    #json_data["criacao"] = now
+    print(json_data)
+    if json_data is not None:
+        db.equipe.insert_one(json_data)
+        return jsonify(mensagem='tarefa criada')
+    else:
+        return jsonify(mensagem='tarefa não criada')
+    
+
+@app.route('/get-equipes', methods=['POST'])
+def get_equipes():
+    return flask.jsonify(json.loads(json_util.dumps(db.equipe.find({}).sort("nome", 1))))
+
+@app.route('/update-equipe', methods=['GET', 'POST'])
+@admin_auth
+def update_equipe():
+    if request.method == 'GET':
+        return render_template("update_equipe.html")
+
+    json_data = request.form.to_dict()
+    print(json_data)
+    if json_data is not None and db.equipe.find_one({"_id": ObjectId(json_data["id"])}) is not None:
+        db.equipe.update_one({'_id': ObjectId(json_data["id"])}, 
+                              {"$set": {'nome': json_data["nome"], 'descricao': json_data["descricao"]}})
+        return jsonify(mensagem='Equipe atualizada')
+    else:
+        return jsonify(mensagem='Equipe não atualizada')
+    
+
+@app.route("/delete-equipe/<string:equipeId>", methods=['POST'])
+@admin_auth
+def delete_equipe(equipeId):
+    
+    result = db.equipe.delete_one({"_id": ObjectId(equipeId)})
+    if(result.deleted_count > 0):
+        return jsonify(mensagem='equipe removido')
+    else:
+        return jsonify(mensagem='equipe não removido')
