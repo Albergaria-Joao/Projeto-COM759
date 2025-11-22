@@ -18,7 +18,7 @@ import random
 # login peao
 # senha peao
 
-
+# OS TEMPLATES AQUI NO BACKEND SÃO SÓ TESTES. O FRONTEND É NO VUE
 
 def admin_auth(f):
     @wraps(f)
@@ -93,11 +93,20 @@ def hashing(password, salt):
 def criar_membro_db(dados):
     membro = db["membro"]
 
-    password = dados["senha"]
-    hashed_password = hashing(password, salt)
-    dados["senha"] = hashed_password
+    senha = dados["senha"]
+    hashed = hashing(senha, salt)
 
-    membro.insert_one(dados)
+    membro_dados = {
+        "login": dados["login"],
+        "nome": dados["nome"],
+        "email": dados["email"],
+        "senha": hashed,
+        "equipe_id": dados["equipe_id"],
+        "auth": dados["auth"]
+    }
+
+
+    membro.insert_one(membro_dados)
     #
 
 @app.route('/create-membro', methods=['GET', 'POST'])
@@ -227,14 +236,22 @@ def create_tarefa():
         return render_template("create_tarefa.html")
 
     json_data = request.form.to_dict()
-    json_data["membro_id"] = ObjectId(json_data["membro_id"]) 
-    json_data["equipe_id"] = ObjectId(json_data["equipe_id"]) 
-    now = datetime.now()
-    json_data["criacao"] = now.strftime("%Y-%m-%dT%H:%M")
-    json_data["status"] = "A fazer"
-    #json_data["criacao"] = now
     if json_data is not None:
-        db.tarefa.insert_one(json_data)
+        
+        now = datetime.now()
+        tarefa_dados = {
+            "nome": json_data["nome"],
+            "descricao": json_data["descricao"],
+            "membro_id": ObjectId(json_data["membro_id"]),
+            "equipe_id": ObjectId(json_data["equipe_id"]),
+            "prazo": json_data["prazo"],
+            "criacao": now.strftime("%Y-%m-%dT%H:%M"),
+            "status": "A fazer"
+        }
+
+    #json_data["criacao"] = now
+    
+        db.tarefa.insert_one(tarefa_dados)
         return jsonify(mensagem='tarefa criada')
     else:
         return jsonify(mensagem='tarefa não criada')
@@ -374,7 +391,15 @@ def create_equipe():
     #json_data["criacao"] = now
 
     if json_data is not None:
-        db.equipe.insert_one(json_data)
+
+        equipe_dados = {
+            "nome": json_data["nome"],
+            "descricao": json_data["descricao"]
+        }
+
+
+
+        db.equipe.insert_one(equipe_dados)
         return jsonify(mensagem='Equipe criada')
     else:
         return jsonify(mensagem='Equipe não criada')
