@@ -5,6 +5,59 @@
     <meta charset="UTF-8" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
+
+      // aqui, eu preenchi a tabela das tarefas usando AJAX pra testar (já que no Vue não dá pra passar os dados direto)
+      function carregarTarefas() {       
+        $.ajax({
+          url: "http://localhost:5000/get-tarefas",
+          type: "POST",
+          dataType: "json",
+          data: "",
+          success: function (tarefas) {
+            const tbody = $("#tarefas-tbody");
+            tbody.empty();
+            console.log(tarefas);
+            tarefas.forEach(tarefa => {
+
+              const linha = `
+              <tr>
+                <td>${tarefa._id.$oid}</td>
+                <td>${tarefa.nome}</td>
+                <td>${tarefa.descricao}</td>
+                <td>${tarefa.membro_login || ""}</td>
+                <td>${tarefa.equipe_nome || ""}</td>
+                <td>${tarefa.criacao || ""}</td>
+                <td>${tarefa.prazo || ""}</td>
+                <td>${tarefa.conclusao || ""}</td>
+
+                <td>
+                  <select name="status" class="status-select" data-id="${tarefa._id.$oid}">
+                    <option value="A fazer">A fazer</option>
+                    <option value="Em execução">Em execução</option>
+                    <option value="Concluída">Concluída</option>
+                  </select>
+                </td>
+
+                
+                <td><button class="delete-tarefa-btn" data-id="${tarefa._id.$oid}">DELETE</button></td>
+                <td><a href="/update-tarefa?id=${tarefa._id.$oid}"><button class="update-tarefa-btn">UPDATE</button></a></td>
+              </tr>
+              `;
+
+              tbody.append(linha);
+              const selectStatus = tbody.find(`tr:last-child .status-select`);
+              selectStatus.val(tarefa.status);
+            });
+
+
+          },
+          error: function (xhr, resp, text) {
+            console.log("Erro ao carregar tarefas:", xhr, resp, text);
+          }
+        });
+      }
+
+
       $(document).ready(function () {
         $("#logout").on("click", function () {
           $.ajax({
@@ -22,6 +75,10 @@
             },
           });
         });
+        
+        
+
+        carregarTarefas();
 
         $(".delete-membro-btn").on("click", function () {
           const id = $(this).data("id");
@@ -60,43 +117,6 @@
           });
         });
 
-        $(".delete-tarefa-btn").on("click", function () {
-          const id = $(this).data("id");
-          console.log(`Deletando a tarefa com id: ${id}`);
-          $.ajax({
-            url: `http://localhost:5000/delete-tarefa/${id}`,
-            type: "POST",
-            dataType: "json",
-            data: "",
-            success: function (result) {
-              window.location.href = "/";
-              console.log(result);
-            },
-            error: function (xhr, resp, text) {
-              console.log(xhr, resp, text);
-            },
-          });
-        });
-
-        $(".concluir-tarefa-btn").on("click", function () {
-          const id = $(this).data("id");
-          console.log(`Deletando a tarefa com id: ${id}`);
-          $.ajax({
-            url: `http://localhost:5000/concluir-tarefa/${id}`,
-            type: "POST",
-            dataType: "json",
-            data: "",
-            success: function (result) {
-              window.location.href = "/";
-              console.log(result);
-            },
-            error: function (xhr, resp, text) {
-              console.log(xhr, resp, text);
-            },
-          });
-        });
-
-
         $(".delete-equipe-btn").on("click", function () {
           const id = $(this).data("id");
           console.log(`Deletando a equipe com id: ${id}`);
@@ -114,8 +134,45 @@
             },
           });
         });
+      });
+      $(document).on("change", ".status-select", function () { // Tem que fazer isso porque ele só carrega depois
+        // Mudança de status da tarefa
+        const id = $(this).data("id");
+        const novoStatus = $(this).val();
 
+        console.log("Mudou:", id, novoStatus);
 
+        $.ajax({
+          url: `http://localhost:5000/update-status-tarefa/${id}`,
+          type: "POST",
+          dataType: "json",
+          data: { status: novoStatus },
+          success: function (resultado) {
+            console.log("Status atualizado!", resultado);
+            carregarTarefas();
+          },
+          error: function (xhr, resp, text) {
+            console.log("Erro:", xhr, resp, text);
+          },
+        });
+      });
+      // Sempre que o elemento for gerado dinamicamente e eu colocar algum evento no JS, preciso deixar eles por fora
+      $(document).on("click", ".delete-tarefa-btn", function () {
+        const id = $(this).data("id");
+        console.log(`Deletando a tarefa com id: ${id}`);
+        $.ajax({
+          url: `http://localhost:5000/delete-tarefa/${id}`,
+          type: "POST",
+          dataType: "json",
+          data: "",
+          success: function (result) {
+            window.location.href = "/";
+            console.log(result);
+          },
+          error: function (xhr, resp, text) {
+            console.log(xhr, resp, text);
+          },
+        });
       });
     </script>
   </head>
@@ -160,43 +217,23 @@
   </br>
   </br>
     <table>
-      <tr>
-        <th>Id</th>
-        <th>Nome</th>
-        <th>Descrição</th>
-        <th>Responsável</th>
-        <th>Equipe</th>
-        <th>Criação</th>
-        <th>Prazo</th>
-      </tr>
-      {% for tarefa in tarefas %}
-      {% if not tarefa.conclusao %}
-      <tr>
-        <td>{{ tarefa._id }}</td>
-        <td>{{ tarefa.nome }}</td>
-        <td>{{ tarefa.descricao }}</td>
-        <td>{{ tarefa.membro_login }}</td>
-        <td>{{ tarefa.equipe_nome }}</td>
-        <td>{{ tarefa.criacao }}</td>
-        <td>{{ tarefa.prazo }}</td>
-        {% if session.auth == "admin" %}
-        <td>
-          <button class="delete-tarefa-btn" data-id="{{ tarefa._id }}">DELETE</button>
-        </td>
-        <td>
-          <a
-            href="/update-tarefa?id={{ tarefa._id }}"
-            ><button class="update-tarefa-btn">UPDATE</button></a
-          >
-        </td>
-        {% endif %}
-        <td>
-          <button class="concluir-tarefa-btn" data-id="{{ tarefa._id }}">CONCLUIR</button>
-        </td>
-        
-      </tr>
-      {% endif %}
-      {% endfor %}
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Nome</th>
+          <th>Descrição</th>
+          <th>Responsável</th>
+          <th>Equipe</th>
+          <th>Criação</th>
+          <th>Prazo</th>
+          <th>Conclusão</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tarefas-tbody">
+        <!-- Teste com AJAX -->
+      </tbody>
+      
     </table>
     <a href="/create-tarefa"><button>CRIAR TAREFA</button></a>
   </br>

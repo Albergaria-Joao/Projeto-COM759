@@ -10,19 +10,29 @@ from datetime import datetime
 from functools import wraps
 import random
 
+# Admin:
+# login admin
+# senha admin
+
+# Peão (sem permissões):
+# login peao
+# senha peao
+
+
+
 def admin_auth(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         if "auth" not in session or session["auth"] != "admin":
-            return jsonify(mensagem="Ação não autorizada")
+            return jsonify(mensagem="Acao nao autorizada")
         return f(*args, **kwargs)
     return wrapper
 
 def gerente_auth(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if "auth" not in session or session["auth"] != "gerente" and session["auth"] != "admin":
-            return jsonify(mensagem="Ação não autorizada")
+        if "auth" not in session or (session["auth"] != "gerente" and session["auth"] != "admin"):
+            return jsonify(mensagem="Acao nao autorizada")
         return f(*args, **kwargs)
     return wrapper
 
@@ -41,8 +51,6 @@ def index():
 
     membros = join_membros()
 
-    print(dict(session))
-
     return render_template("dashboard.html", membros=membros, tarefas=tarefas, equipes=db.equipe.find().sort("_id", 1))
     #return flask.jsonify(json.loads(json_util.dumps(db.membro.find({}).sort("_id", 1))))
 
@@ -56,17 +64,14 @@ def login():
     
     
     json_data = request.form.to_dict()
-    print(json_data)
     user = db.membro.find_one({"login": json_data["login"]})
-    print(user)
-    #print(user["senha"])
     if (hashing(json_data["senha"], user["senha"]) == user["senha"]):
         session["username"] = user["login"]
         session["nome"] = user["nome"]
         session["auth"] = user["auth"]
             
         return redirect("/index")
-    
+    return redirect("/login")
 
         # Descomentar para ele mandar isso pro frontend depois
         # return jsonify(username=user["login"], nome=user["nome"], auth=user["auth"])
@@ -83,7 +88,6 @@ salt = bcrypt.gensalt()
 def hashing(password, salt):
     bytes_password = password.encode('utf-8')  # Convert to bytes
     hashed_password = bcrypt.hashpw(bytes_password, salt)
-    print(hashed_password)
     return hashed_password
 
 def criar_membro_db(dados):
@@ -157,7 +161,6 @@ def get_membros(membroId=None):
     membros = join_membros()
 
     json_data = request.form.to_dict()
-    print(json_data)
 
     if json_data.get("equipe_id") is None: # Se quiser pegar todos os membros, não passar id da equipe
         return jsonify(json.loads(json_util.dumps(membros)))
@@ -177,7 +180,6 @@ def update_membro():
 
     json_data = request.form.to_dict()
     json_data["equipe_id"] = ObjectId(json_data["equipe_id"]) 
-    print(json_data)
     if json_data is not None and db.membro.find_one({"_id": ObjectId(json_data["id"])}) is not None:
         db.membro.update_one({'_id': ObjectId(json_data["id"])}, 
                               {"$set": {'nome': json_data["nome"], 'email': json_data["email"], 'equipe_id': json_data["equipe_id"], 'auth': json_data["auth"]}})
@@ -220,8 +222,7 @@ def delete_membro(membroId):
 @app.route('/create-tarefa', methods=['GET', 'POST'])
 @gerente_auth
 def create_tarefa():
-    
-    #criar_membro()
+
     if request.method == 'GET':
         return render_template("create_tarefa.html")
 
@@ -230,8 +231,8 @@ def create_tarefa():
     json_data["equipe_id"] = ObjectId(json_data["equipe_id"]) 
     now = datetime.now()
     json_data["criacao"] = now.strftime("%Y-%m-%dT%H:%M")
+    json_data["status"] = "A fazer"
     #json_data["criacao"] = now
-    print(json_data)
     if json_data is not None:
         db.tarefa.insert_one(json_data)
         return jsonify(mensagem='tarefa criada')
@@ -278,7 +279,8 @@ def join_tarefas():
                 "equipe_nome": "$equipe_info.nome",
                 "prazo": 1,
                 "criacao": 1,
-                "conclusao": 1
+                "conclusao": 1,
+                "status": 1
             }
         }
     ]))
@@ -320,27 +322,29 @@ def update_tarefa():
     json_data = request.form.to_dict()
     json_data["membro_id"] = ObjectId(json_data["membro_id"])
     json_data["equipe_id"] = ObjectId(json_data["equipe_id"])  
-    print(json_data)
     if json_data is not None and db.tarefa.find_one({"_id": ObjectId(json_data["id"])}) is not None:
         db.tarefa.update_one({'_id': ObjectId(json_data["id"])}, 
                               {"$set": {'nome': json_data["nome"], 'descricao': json_data["descricao"], 'prazo': json_data["prazo"], 'membro_id': json_data["membro_id"], 'equipe_id': json_data["equipe_id"]}})
-        print("atualizou!!!")
         return jsonify(mensagem='tarefa atualizado')
     else:
         return jsonify(mensagem='tarefa não atualizado')
 
 
-@app.route('/concluir-tarefa/<string:tarefaId>', methods=['POST'])
-def concluir_tarefa(tarefaId):
+@app.route('/update-status-tarefa/<string:tarefaId>', methods=['POST'])
+def update_status_tarefa(tarefaId):
 
     json_data = request.form.to_dict()
-    now = datetime.now()
-    now_format = now.strftime("%Y-%m-%dT%H:%M")
-    print(json_data)
+    
 
+    if (json_data["status"] == "Concluída"):
+        now = datetime.now()
+        now_format = now.strftime("%Y-%m-%dT%H:%M")
+        db.tarefa.update_one({'_id': ObjectId(tarefaId)}, 
+                            {"$set": {'status': json_data["status"], 'conclusao': now_format}})
+        return jsonify(mensagem='tarefa atualizado')
+    
     db.tarefa.update_one({'_id': ObjectId(tarefaId)}, 
-                            {"$set": {'conclusao': now_format}})
-    print("atualizou!!!")
+                            {"$set": {'status': json_data["status"]}})
     return jsonify(mensagem='tarefa atualizado')
     # else:
     #     return jsonify(mensagem='tarefa não atualizado')
@@ -368,7 +372,7 @@ def create_equipe():
 
     json_data = request.form.to_dict()
     #json_data["criacao"] = now
-    print(json_data)
+
     if json_data is not None:
         db.equipe.insert_one(json_data)
         return jsonify(mensagem='Equipe criada')
@@ -393,7 +397,6 @@ def update_equipe():
         return render_template("update_equipe.html")
 
     json_data = request.form.to_dict()
-    print(json_data)
     if json_data is not None and db.equipe.find_one({"_id": ObjectId(json_data["id"])}) is not None:
         db.equipe.update_one({'_id': ObjectId(json_data["id"])}, 
                               {"$set": {'nome': json_data["nome"], 'descricao': json_data["descricao"]}})
