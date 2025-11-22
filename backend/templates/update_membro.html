@@ -41,8 +41,7 @@
 
             $("input[name='email']").val(result.email);
             $("select[name='equipe_id']").val(result.equipe_id.$oid);
-            console.log(result.admin);
-            $("input[name='admin']").prop("checked", result.admin);
+            $("select[name='auth']").val(result.auth);
 
             //window.location.href = "/";
             console.log(result);
@@ -87,7 +86,13 @@
       <select name="equipe_id" id="equipe-select">
         <option value="">--Escolha uma equipe--</option>
       </select>
-      <input type="checkbox" name="admin" /> Admin <br />
+      <br />
+      Cargo:
+      <select name="auth" id="auth-select">
+        <option value="membro">Membro</option>
+        <option value="gerente">Gerente</option>
+        <option value="admin">Admin</option>
+      </select>
       <input id="submit" type="button" value="Enviar" />
     </form>
   </body>

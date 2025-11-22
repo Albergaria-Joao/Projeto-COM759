@@ -128,6 +128,8 @@
         <th>Nome</th>
         <th>E-mail</th>
         <th>Equipe</th>
+        <th>Cargo</th>
+        
       </tr>
       {% for membro in membros %}
       <tr>
@@ -136,7 +138,8 @@
         <td>{{ membro.nome }}</td>
         <td>{{ membro.email }}</td>
         <td>{{ membro.equipe_nome }}</td>
-        {% if session.admin %}
+        <td>{{ membro.auth }}</td>
+        {% if session.auth == "admin" %}
         <td>
           <button class="delete-membro-btn" data-id="{{ membro._id }}">DELETE</button>
         </td>
@@ -176,7 +179,7 @@
         <td>{{ tarefa.equipe_nome }}</td>
         <td>{{ tarefa.criacao }}</td>
         <td>{{ tarefa.prazo }}</td>
-        {% if session.admin %}
+        {% if session.auth == "admin" %}
         <td>
           <button class="delete-tarefa-btn" data-id="{{ tarefa._id }}">DELETE</button>
         </td>
@@ -210,7 +213,7 @@
         <td>{{ equipe._id }}</td>
         <td>{{ equipe.nome }}</td>
         <td>{{ equipe.descricao }}</td>
-        {% if session.admin %}
+        {% if session.auth == "admin" %}
         <td>
           <button class="delete-equipe-btn" data-id="{{ equipe._id }}">DELETE</button>
         </td>

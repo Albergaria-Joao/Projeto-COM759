@@ -13,7 +13,15 @@ import random
 def admin_auth(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if "admin" not in session or session["admin"] is False:
+        if "auth" not in session or session["auth"] != "admin":
+            return jsonify(mensagem="Ação não autorizada")
+        return f(*args, **kwargs)
+    return wrapper
+
+def gerente_auth(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if "auth" not in session or session["auth"] != "gerente" and session["auth"] != "admin":
             return jsonify(mensagem="Ação não autorizada")
         return f(*args, **kwargs)
     return wrapper
@@ -55,13 +63,14 @@ def login():
     if (hashing(json_data["senha"], user["senha"]) == user["senha"]):
         session["username"] = user["login"]
         session["nome"] = user["nome"]
-        session["admin"] = False
-        if user.get("admin") is not None:
-            session["admin"] = True
+        session["auth"] = user["auth"]
             
         return redirect("/index")
-    else:
-        return redirect("/erro")
+    
+
+        # Descomentar para ele mandar isso pro frontend depois
+        # return jsonify(username=user["login"], nome=user["nome"], auth=user["auth"])
+
     
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -84,7 +93,7 @@ def criar_membro_db(dados):
     hashed_password = hashing(password, salt)
     dados["senha"] = hashed_password
 
-    resultado = membro.insert_one(dados)
+    membro.insert_one(dados)
     #
 
 @app.route('/create-membro', methods=['GET', 'POST'])
@@ -130,7 +139,7 @@ def join_membros():
                 "email": 1,
                 "senha": 1,
                 "equipe_nome": "$equipe_info.nome",
-                "admin": 1
+                "auth": 1
             }
         }
     ]))
@@ -149,15 +158,19 @@ def get_membros(membroId=None):
 
     json_data = request.form.to_dict()
     print(json_data)
+
+    if json_data.get("equipe_id") is None: # Se quiser pegar todos os membros, não passar id da equipe
+        return jsonify(json.loads(json_util.dumps(membros)))
+
     if json_data.get("equipe_id") is not None and db.equipe.find_one({"_id": ObjectId(json_data["equipe_id"])}) is not None:
         membros = db.membro.find({"equipe_id": ObjectId(json_data["equipe_id"])}).sort("_id", 1)
-        #print(dict(membros))
+        
 
     return jsonify(json.loads(json_util.dumps(membros)))
 
 
 @app.route('/update-membro', methods=['GET', 'POST'])
-@admin_auth
+@gerente_auth
 def update_membro():
     if request.method == 'GET':
         return render_template("update_membro.html")
@@ -167,7 +180,7 @@ def update_membro():
     print(json_data)
     if json_data is not None and db.membro.find_one({"_id": ObjectId(json_data["id"])}) is not None:
         db.membro.update_one({'_id': ObjectId(json_data["id"])}, 
-                              {"$set": {'nome': json_data["nome"], 'email': json_data["email"], 'equipe_id': json_data["equipe_id"], 'admin': json_data["admin"]}})
+                              {"$set": {'nome': json_data["nome"], 'email': json_data["email"], 'equipe_id': json_data["equipe_id"], 'auth': json_data["auth"]}})
         return jsonify(mensagem='membro atualizado')
     else:
         return jsonify(mensagem='membro não atualizado')
@@ -189,7 +202,7 @@ def reset_senha(membroId):
 
 
 @app.route("/delete-membro/<string:membroId>", methods=['POST'])
-@admin_auth
+@gerente_auth
 def delete_membro(membroId):
 
     
@@ -205,7 +218,7 @@ def delete_membro(membroId):
 
 
 @app.route('/create-tarefa', methods=['GET', 'POST'])
-@admin_auth
+@gerente_auth
 def create_tarefa():
     
     #criar_membro()
@@ -279,8 +292,17 @@ def get_tarefas(tarefaId=None):
     if tarefaId is not None:
         tarefa = db.tarefa.find_one({"_id": ObjectId(tarefaId)})
         return jsonify(json.loads(json_util.dumps(tarefa)))
+    
+    json_data = request.form.to_dict()
 
-    tarefas = join_tarefas()
+
+    if json_data.get("equipe_id") is None: # Se quiser pegar todas as tarefas, não passar id da equipe
+        tarefas = join_tarefas()
+        return jsonify(json.loads(json_util.dumps(tarefas)))
+
+    if json_data.get("equipe_id") is not None and db.equipe.find_one({"_id": ObjectId(json_data["equipe_id"])}) is not None:
+        tarefas = db.tarefa.find({"equipe_id": ObjectId(json_data["equipe_id"])}).sort("_id", 1)
+    
 
     return jsonify(json.loads(json_util.dumps(tarefas)))
 
@@ -289,7 +311,7 @@ def get_tarefas(tarefaId=None):
 
     
 @app.route('/update-tarefa', methods=['GET', 'POST'])
-@admin_auth
+@gerente_auth
 def update_tarefa():
     if request.method == 'GET':
         return render_template("update_tarefa.html")
@@ -324,7 +346,7 @@ def concluir_tarefa(tarefaId):
     #     return jsonify(mensagem='tarefa não atualizado')
 
 @app.route("/delete-tarefa/<string:tarefaId>", methods=['POST'])
-@admin_auth
+@gerente_auth
 def delete_tarefa(tarefaId):
     
     result = db.tarefa.delete_one({"_id": ObjectId(tarefaId)})

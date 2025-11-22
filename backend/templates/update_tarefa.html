@@ -34,7 +34,7 @@
             url: "http://localhost:5000/get-membros",
             type: "POST",
             dataType: "json",
-            data: { equipe_id: $("#equipe-select").val() },
+            data: { equipe_id: $("#equipe-select").val() }, // Para pegar os membros por equipe, é só passar o ID da equipe no JSON
             success: function (result) {
               //alert("tarefa criado com sucesso!");
               const select = $("#membro-select");
