@@ -188,7 +188,6 @@ export default {
         auth: localStorage.getItem('auth'),
         username: localStorage.getItem('username')
       }
-
     },
 
     async fetchAll () {

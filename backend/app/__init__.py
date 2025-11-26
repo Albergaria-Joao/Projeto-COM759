@@ -16,7 +16,9 @@ load_dotenv("../../.env")
 
 mongo_uri = os.getenv("MONGO_URI")
 
-CORS(app, resources={r'/*': {'origins': '*'}})
+# CORS(app, supports_credentials=True)
+
+CORS(app, resources={r"/*": {"origins": "http://localhost:8081"}}, supports_credentials=True)
 mongodb_client = PyMongo(app, 
                          uri=mongo_uri)
 db = mongodb_client.db

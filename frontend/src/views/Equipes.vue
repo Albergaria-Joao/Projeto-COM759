@@ -82,12 +82,17 @@ export default {
   },
   methods: {
     // Mesma lógica do Dashboard (leitura do localStorage)
-    fetchUser() {
-      const dadosSalvos = localStorage.getItem('usuario_app')
-      if (dadosSalvos) {
-        this.user = JSON.parse(dadosSalvos)
-      } else {
-        this.user = { nome: 'Visitante', auth: 'guest' }
+    fetchUser () {
+      // const dadosSalvos = localStorage.getItem('usuario_app')
+      // if (dadosSalvos) {
+      //   this.user = JSON.parse(dadosSalvos)
+      // } else {
+      //   this.user = { nome: 'Visitante', auth: 'guest' }
+      // }
+      this.user = {
+        nome: localStorage.getItem('nome'),
+        auth: localStorage.getItem('auth'),
+        username: localStorage.getItem('username')
       }
     },
 

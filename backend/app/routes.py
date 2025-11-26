@@ -1,5 +1,6 @@
 from flask import json, request, jsonify, render_template, redirect, session
 import flask
+from flask import Flask
 from bson import json_util
 from app import app
 from app import db
@@ -9,13 +10,10 @@ import bcrypt
 from datetime import datetime
 from functools import wraps
 import random
-from flask_cors import CORS
  
-CORS(app, supports_credentials=True)
+# CORS(app, supports_credentials=True)
 
-CORS(app, resources={r"/*": {"origins": "http://localhost:8081"}}, supports_credentials=True)
-
-
+# CORS(app, resources={r"/*": {"origins": "http://localhost:8081"}}, supports_credentials=True)
 
 # Admin:
 # login admin
@@ -74,14 +72,16 @@ def login():
     json_data = request.get_json()
     print("dados: ", json_data)
     user = db.membro.find_one({"login": json_data["login"]})
+    if not user:
+        return jsonify(status=403, mensagem="login falhou")
     if (hashing(json_data["senha"], user["senha"]) == user["senha"]):
         session["username"] = user["login"]
         session["nome"] = user["nome"]
         session["auth"] = user["auth"]
         print("tentou logar")
-        return jsonify(username=user["login"], nome=user["nome"], auth=user["auth"])
+        return jsonify(status=200, username=user["login"], nome=user["nome"], auth=user["auth"])
     else:
-        return jsonify(mensagem='login falhou')
+        return jsonify(status=403,mensagem='login falhou')
             
     #     return redirect("/index")
     # return redirect("/login")

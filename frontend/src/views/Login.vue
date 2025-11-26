@@ -32,7 +32,7 @@
         </div>
 
         <button type="submit" class="btn-submit">
-          Autenticando...
+          Acessar sistema
         </button>
 
         <div v-if="error" class="error-msg">
@@ -73,6 +73,10 @@ export default {
 
         // const response = await axios.post('http://localhost:5000/login', params)
         const response = await api.post('/login', params)
+        if (response.data.status !== 200) {
+          this.error = 'Login ou senha incorretos.'
+          return
+        }
         const usuario = response.data
         console.log('resposta:', usuario)
         localStorage.setItem('username', usuario.username)
@@ -82,6 +86,7 @@ export default {
 
         this.$router.push('/dashboard')
       } catch (error) {
+        this.error = 'Erro ao conectar ao servidor.'
         console.log(error)
         // this.error = error.response?.data?.mensagem || "Erro inesperado"
       }
