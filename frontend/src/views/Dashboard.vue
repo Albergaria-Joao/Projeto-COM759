@@ -177,12 +177,18 @@ export default {
   methods: {
     // Busca usuário simulado do LocalStorage
     fetchUser () {
-      const dadosSalvos = localStorage.getItem('usuario_app')
-      if (dadosSalvos) {
-        this.user = JSON.parse(dadosSalvos)
-      } else {
-        this.user = { nome: 'Visitante', auth: 'guest' }
+      // const dadosSalvos = localStorage.getItem('usuario_app')
+      // if (dadosSalvos) {
+      //   this.user = JSON.parse(dadosSalvos)
+      // } else {
+      //   this.user = { nome: 'Visitante', auth: 'guest' }
+      // }
+      this.user = {
+        nome: localStorage.getItem('nome'),
+        auth: localStorage.getItem('auth'),
+        username: localStorage.getItem('username')
       }
+
     },
 
     async fetchAll () {

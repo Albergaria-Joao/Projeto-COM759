@@ -15,7 +15,7 @@
             type="text"
             placeholder="Ex: admin"
             required
-            :disabled="loading"
+
           />
         </div>
 
@@ -27,12 +27,12 @@
             v-model="senha"
             placeholder="••••••"
             required
-            :disabled="loading"
+
           />
         </div>
 
-        <button type="submit" :disabled="loading" class="btn-submit">
-          {{ loading ? 'Autenticando...' : 'Acessar Sistema' }}
+        <button type="submit" class="btn-submit">
+          Autenticando...
         </button>
 
         <div v-if="error" class="error-msg">
@@ -48,6 +48,7 @@
 </template>
 
 <script>
+
 import api from '@/api'
 
 export default {
@@ -61,44 +62,31 @@ export default {
   methods: {
     async submit () {
       this.error = ''
+
       try {
-        // GAMBIARRA 1: Transformar JSON em formato de Formulário
-        // O backend espera application/x-www-form-urlencoded
-        const params = new URLSearchParams()
-        params.append('login', this.login)
-        params.append('senha', this.senha)
-
-        // Envia para o backend
-        const res = await api.post('/login', params)
-
-        // GAMBIARRA 2: Checar se o login falhou via URL
-        // O backend redireciona para /login se der erro, ou /index se der certo.
-        // O axios segue o redirecionamento e nos devolve a URL final.
-        if (res.request.responseURL && res.request.responseURL.includes('login')) {
-          this.error = 'Login ou senha inválidos'
-          return
-        }
-
-        // GAMBIARRA 3: Simular os dados do usuário (já que não temos rota /me)
-        // Se o login for 'admin', damos permissão de admin.
-        const nivelAuth = this.login === 'admin' ? 'admin' : 'gerente'
-
-        const usuarioFalso = {
+        const params = {
           login: this.login,
-          nome: this.login.toUpperCase(), // Improviso estético
-          auth: nivelAuth
+          senha: this.senha
         }
 
-        // Salva no navegador para usar nas outras telas
-        localStorage.setItem('usuario_app', JSON.stringify(usuarioFalso))
+        console.log('enviando:', params)
 
-        // Redireciona para o Dashboard
+        // const response = await axios.post('http://localhost:5000/login', params)
+        const response = await api.post('/login', params)
+        const usuario = response.data
+        console.log('resposta:', usuario)
+        localStorage.setItem('username', usuario.username)
+        // console.log('username salvo:', localStorage.getItem('username'))
+        localStorage.setItem('nome', usuario.nome)
+        localStorage.setItem('auth', usuario.auth)
+
         this.$router.push('/dashboard')
-      } catch (err) {
-        console.error(err)
-        this.error = 'Erro de conexão com o servidor.'
+      } catch (error) {
+        console.log(error)
+        // this.error = error.response?.data?.mensagem || "Erro inesperado"
       }
     }
+
   }
 }
 </script>

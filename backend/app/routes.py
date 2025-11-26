@@ -9,6 +9,13 @@ import bcrypt
 from datetime import datetime
 from functools import wraps
 import random
+from flask_cors import CORS
+ 
+CORS(app, supports_credentials=True)
+
+CORS(app, resources={r"/*": {"origins": "http://localhost:8081"}}, supports_credentials=True)
+
+
 
 # Admin:
 # login admin
@@ -56,25 +63,31 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if session.get("username") != None:
-        return redirect("/index")
-    if (request.method == 'GET'):
-        return render_template("login.html")
+    # if session.get("username") != None:
+    #     return redirect("/index")
+    # if (request.method == 'GET'):
+    #     return render_template("login.html")
     
     
     
-    json_data = request.form.to_dict()
+
+    json_data = request.get_json()
+    print("dados: ", json_data)
     user = db.membro.find_one({"login": json_data["login"]})
     if (hashing(json_data["senha"], user["senha"]) == user["senha"]):
         session["username"] = user["login"]
         session["nome"] = user["nome"]
         session["auth"] = user["auth"]
+        print("tentou logar")
+        return jsonify(username=user["login"], nome=user["nome"], auth=user["auth"])
+    else:
+        return jsonify(mensagem='login falhou')
             
-        return redirect("/index")
-    return redirect("/login")
+    #     return redirect("/index")
+    # return redirect("/login")
 
         # Descomentar para ele mandar isso pro frontend depois
-        # return jsonify(username=user["login"], nome=user["nome"], auth=user["auth"])
+    
 
     
 @app.route('/logout', methods=['POST'])

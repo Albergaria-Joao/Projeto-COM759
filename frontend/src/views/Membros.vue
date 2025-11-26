@@ -1,33 +1,29 @@
 <template>
-  <div class="page-container">
-
-    <header class="navbar">
-      <div class="brand">
+  <div class='page-container'>
+    <header class='navbar'>
+      <div class='brand'>
         <h2>Gestão de Membros</h2>
       </div>
-      <div class="user-controls">
-        <div v-if="user" class="user-info">
-          <span class="user-name">{{ user.nome }}</span>
-          <span class="user-role">{{ user.auth }}</span>
+      <div class='user-controls'>
+        <div v-if='user' class='user-info'>
+          <span class='user-name'>{{ user.nome }}</span>
+          <span class='user-role'>{{ user.auth }}</span>
         </div>
-        <button @click="$router.push('/dashboard')" class="btn-nav">
+        <button @click="$router.push('/dashboard')" class='btn-nav'>
           Voltar ao Dashboard
         </button>
-        <button @click="logout" class="btn-logout">
-          Sair
-        </button>
+        <button @click='logout' class='btn-logout'>Sair</button>
       </div>
     </header>
 
-    <main class="content-area">
-
-      <div class="card-container">
-        <div class="card-header">
+    <main class='content-area'>
+      <div class='card-container'>
+        <div class='card-header'>
           <h3>Membros Cadastrados</h3>
-          <span class="count-badge">{{ membrosFiltered.length }} usuários</span>
+          <span class='count-badge'>{{ membrosFiltered.length }} usuários</span>
         </div>
 
-        <div class="table-responsive">
+        <div class='table-responsive'>
           <table>
             <thead>
               <tr>
@@ -39,15 +35,19 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-if="membrosFiltered.length === 0">
-                <td colspan="5" class="empty-state">Nenhum membro encontrado.</td>
+              <tr v-if='membrosFiltered.length === 0'>
+                <td colspan='5' class='empty-state'>
+                  Nenhum membro encontrado.
+                </td>
               </tr>
 
-              <tr v-for="m in membrosFiltered" :key="m._id.$oid">
-                <td class="col-name">{{ m.nome }}</td>
-                <td class="col-login">{{ m.login }}</td>
-                <td class="col-email">{{ m.email }}</td>
-                <td class="col-team">{{ m.equipe_nome ? m.equipe_nome : '—' }}</td>
+              <tr v-for='m in membrosFiltered' :key='m._id.$oid'>
+                <td class='col-name'>{{ m.nome }}</td>
+                <td class='col-login'>{{ m.login }}</td>
+                <td class='col-email'>{{ m.email }}</td>
+                <td class='col-team'>
+                  {{ m.equipe_nome ? m.equipe_nome : '—' }}
+                </td>
                 <td>
                   <span :class="['auth-badge', `auth-${m.auth}`]">
                     {{ m.auth }}
@@ -58,75 +58,74 @@
           </table>
         </div>
       </div>
-
     </main>
   </div>
 </template>
 
 <script>
 /* eslint-disable */
-import api from '@/api'
+import api_post from '@/api';
 
 export default {
   name: 'MembrosView',
   data() {
-    return { 
-      membros: [], 
-      user: null 
-    }
+    return {
+      membros: [],
+      user: null,
+    };
   },
   computed: {
     membrosFiltered() {
       // Se não tiver usuário carregado, mostra tudo ou nada (optei por mostrar)
-      if (!this.user) return this.membros
-      
+      if (!this.user) return this.membros;
+
       // Se for admin, vê todo mundo
-      if (this.user.auth === 'admin') return this.membros
-      
+      if (this.user.auth === 'admin') return this.membros;
+
       // Lógica de filtro:
       // Como o backend projeta 'equipe_nome' e não ID, filtramos pelo que temos.
       // Se não tiver info de equipe no usuário local, retorna tudo para não travar.
-      return this.membros
-    }
+      return this.membros;
+    },
   },
   created() {
-    this.fetchUser()
-    this.fetchMembros()
+    this.fetchUser();
+    this.fetchMembros();
   },
   methods: {
     fetchUser() {
-      const dadosSalvos = localStorage.getItem('usuario_app')
+      const dadosSalvos = localStorage.getItem('usuario_app');
       if (dadosSalvos) {
-        this.user = JSON.parse(dadosSalvos)
+        this.user = JSON.parse(dadosSalvos);
       } else {
-        this.user = { nome: 'Visitante', auth: 'guest' }
+        this.user = { nome: 'Visitante', auth: 'guest' };
       }
     },
 
     async fetchMembros() {
       try {
-        const params = new URLSearchParams()
+        const params = new URLSearchParams();
         // Envia POST vazio (form-data) para pegar todos
-        const res = await api.post('/get-membros', params)
-        this.membros = res.data
+        const res = await api_post('/get-membros', params);
+        this.membros = res.data;
       } catch (e) {
-        console.error('Erro ao buscar membros:', e)
+        console.error('Erro ao buscar membros:', e);
       }
     },
 
     async logout() {
       try {
-        const params = new URLSearchParams()
-        await api.post('/logout', params)
+        const params = new URLSearchParams();
+        await api.post('/logout', params);
       } catch (err) {
-        console.error(err)
+        console.error(err);
       } finally {
-        localStorage.removeItem('usuario_app')
-        this.$router.push('/login')
+        localStorage.removeItem('usuario_app');
+        this.$router.push('/login');
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -148,7 +147,7 @@ export default {
   height: 60px;
   background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
   color: white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .brand h2 {
@@ -183,19 +182,20 @@ export default {
 }
 
 /* Botões da Navbar */
-.btn-nav, .btn-logout {
+.btn-nav,
+.btn-logout {
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.85rem;
-  border: 1px solid rgba(255,255,255,0.3);
-  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
   transition: all 0.2s;
 }
 
 .btn-nav:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .btn-logout:hover {
@@ -214,7 +214,7 @@ export default {
 .card-container {
   background: white;
   border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   width: 100%;
   max-width: 1000px;
   overflow: hidden;
@@ -281,10 +281,20 @@ tr:hover {
   background-color: #fcfcfc;
 }
 
-.col-name { font-weight: 600; color: #2c3e50; }
-.col-login { color: #2980b9; font-family: monospace; }
-.col-email { color: #7f8c8d; }
-.col-team { font-weight: 500; }
+.col-name {
+  font-weight: 600;
+  color: #2c3e50;
+}
+.col-login {
+  color: #2980b9;
+  font-family: monospace;
+}
+.col-email {
+  color: #7f8c8d;
+}
+.col-team {
+  font-weight: 500;
+}
 
 .empty-state {
   text-align: center;
@@ -312,7 +322,8 @@ tr:hover {
   color: white;
 }
 
-.auth-peao, .auth-user {
+.auth-peao,
+.auth-user {
   background-color: #95a5a6;
   color: white;
 }
