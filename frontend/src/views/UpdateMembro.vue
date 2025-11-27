@@ -81,12 +81,12 @@
 </template>
 
 <script>
-/* eslint-disable */
+
 import api from '@/api'
 
 export default {
   name: 'UpdateMembro',
-  data() {
+  data () {
     return {
       user: null,
       id: null,
@@ -100,20 +100,19 @@ export default {
       }
     }
   },
-  created() {
+  created () {
     this.fetchUser()
-    // Pega o ID da URL
     this.id = this.$route.query.id
-    
+
     if (this.id) {
-        this.loadInitialData()
+      this.loadInitialData()
     } else {
-        alert("ID do membro não fornecido.")
-        this.$router.push('/membros')
+      alert('ID do membro não fornecido.')
+      this.$router.push('/membros')
     }
   },
   methods: {
-    fetchUser() {
+    fetchUser () {
       this.user = {
         nome: localStorage.getItem('nome'),
         auth: localStorage.getItem('auth'),
@@ -121,73 +120,69 @@ export default {
         equipe_id: localStorage.getItem('equipe_id')
       }
       if (this.user.auth !== 'admin' && this.user.auth !== 'gerente') {
-        alert("Acesso negado")
+        alert('Acesso negado')
         this.$router.push('/dashboard')
       }
     },
 
-    async loadInitialData() {
-        try {
-            // 1. Busca lista de equipes para o dropdown
-            const resEquipes = await api.post('/get-equipes', {})
-            this.listaEquipes = resEquipes.data
+    async loadInitialData () {
+      try {
+        const resEquipes = await api.post('/get-equipes', {})
+        this.listaEquipes = resEquipes.data
 
-            // 2. Busca dados do membro
-            const resMembro = await api.post(`/get-membros/${this.id}`, {})
-            const dados = resMembro.data
-            
-            this.form.nome = dados.nome
-            this.form.login = dados.login
-            this.form.email = dados.email
-            this.form.auth = dados.auth
-            // O backend manda equipe_id como ObjectId, aqui pegamos só a string se vier aninhado ou direto
-            this.form.equipe_id = dados.equipe_id.$oid ? dados.equipe_id.$oid : dados.equipe_id
-            
-        } catch (err) {
-            console.error("Erro ao carregar dados", err)
-            alert("Erro ao carregar dados do membro.")
-        }
+        const resMembro = await api.post(`/get-membros/${this.id}`, {})
+        const dados = resMembro.data
+
+        this.form.nome = dados.nome
+        this.form.login = dados.login
+        this.form.email = dados.email
+        this.form.auth = dados.auth
+
+        this.form.equipe_id = dados.equipe_id.$oid ? dados.equipe_id.$oid : dados.equipe_id
+      } catch (err) {
+        console.error('Erro ao carregar dados', err)
+        alert('Erro ao carregar dados do membro.')
+      }
     },
 
-    async updateMembro() {
+    async updateMembro () {
       try {
         const payload = {
-            id: this.id,
-            nome: this.form.nome,
-            email: this.form.email,
-            equipe_id: this.form.equipe_id,
-            auth: this.form.auth
+          id: this.id,
+          nome: this.form.nome,
+          email: this.form.email,
+          equipe_id: this.form.equipe_id,
+          auth: this.form.auth
         }
-        
+
         await api.post('/update-membro', payload)
-        
+
         alert('Membro atualizado com sucesso!')
         this.$router.push('/membros')
-        
       } catch (err) {
         console.error(err)
         alert('Erro ao atualizar membro.')
       }
     },
 
-    async resetarSenha() {
-        if(!confirm("Deseja gerar uma nova senha aleatória para este usuário?")) return;
-        
-        try {
-            const res = await api.post(`/reset-senha/${this.id}`, {})
-            // O backend retorna a nova senha na mensagem
-            alert(res.data.mensagem) 
-        } catch (err) {
-            console.error(err)
-            alert("Erro ao resetar senha.")
-        }
+    async resetarSenha () {
+      if (!confirm('Deseja gerar uma nova senha aleatória para este usuário?')) return
+
+      try {
+        const res = await api.post(`/reset-senha/${this.id}`, {})
+
+        alert(res.data.mensagem)
+      } catch (err) {
+        console.error(err)
+        alert('Erro ao resetar senha.')
+      }
     }
   }
 }
 </script>
 
 <style scoped>
-/* MESMO ESTILO DO CREATE MEMBRO */
+
 .page-container {
   display: flex;
   flex-direction: column;
@@ -295,7 +290,7 @@ export default {
 }
 
 .btn-save {
-  background-color: #2980b9; /* Azul para update */
+  background-color: #2980b9;
   color: white;
   border: none;
   padding: 12px 24px;

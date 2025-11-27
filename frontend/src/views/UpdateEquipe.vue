@@ -1,7 +1,6 @@
 <template>
   <div class="page-container">
 
-    <!-- NAVBAR -->
     <header class="navbar">
       <div class="brand">
         <h2>Gestão de Equipes</h2>
@@ -19,10 +18,8 @@
       </div>
     </header>
 
-    <!-- CONTEÚDO -->
     <main class="content-area">
 
-      <!-- FORM UPDATE -->
       <div v-if="user && user.auth === 'admin'" class="form-card">
         <h3>Alterar Equipe</h3>
 
@@ -112,7 +109,6 @@ export default {
       }
     },
 
-    // Envia update para o backend
     async updateEquipe () {
       try {
         const payload = {
@@ -136,7 +132,7 @@ export default {
 </script>
 
 <style scoped>
-/* Reuso total do estilo do seu layout */
+
 .page-container {
   display: flex;
   flex-direction: column;
@@ -167,7 +163,6 @@ export default {
   justify-content: center;
 }
 
-/* Card do formulário */
 .form-card {
   background: white;
   padding: 30px;

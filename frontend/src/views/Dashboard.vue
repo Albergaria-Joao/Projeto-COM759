@@ -65,7 +65,7 @@
                   <button @click="deleteTarefa(t._id.$oid)" class="btn-delete" title="Excluir">✕</button>
                 </td>
                 <td v-else class="action-cell">
-                  <!-- Usuários comuns não veem nada aqui -->
+
                 </td>
               </tr>
             </tbody>
@@ -107,7 +107,7 @@
                   <button @click="deleteTarefa(t._id.$oid)" class="btn-delete" title="Excluir">✕</button>
                 </td>
                 <td v-else class="action-cell">
-                  <!-- Usuários comuns não veem nada aqui -->
+
                 </td>
               </tr>
             </tbody>
@@ -239,7 +239,7 @@ export default {
 
     async logout () {
       try {
-        await api.post('/logout', {}) 
+        await api.post('/logout', {})
       } catch (err) {
         console.error(err)
       } finally {
@@ -255,7 +255,7 @@ export default {
 </script>
 
 <style scoped>
-/* Layout Geral */
+
 .dashboard-container {
   display: flex;
   flex-direction: column;
@@ -264,7 +264,6 @@ export default {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Navbar */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -308,7 +307,6 @@ export default {
   text-transform: uppercase;
 }
 
-/* Botões da Navbar */
 .btn-refresh, .btn-logout {
   padding: 8px 16px;
   border-radius: 4px;
@@ -345,7 +343,6 @@ export default {
   background: #219150;
 }
 
-/* Área Principal (Kanban) */
 .board-layout {
   display: flex;
   gap: 20px;
@@ -366,7 +363,6 @@ export default {
   max-height: calc(100vh - 100px);
 }
 
-/* Cabeçalho das Colunas */
 .column-header {
   padding: 15px;
   border-bottom: 2px solid #eee;
@@ -392,12 +388,10 @@ export default {
   color: #636e72;
 }
 
-/* Cores das bordas dos cabeçalhos */
 .header-todo { border-top: 4px solid #f39c12; }
 .header-doing { border-top: 4px solid #3498db; }
 .header-done { border-top: 4px solid #27ae60; }
 
-/* Tabela */
 .table-responsive {
   overflow-y: auto;
   flex: 1;
@@ -443,7 +437,6 @@ td {
   color: #7f8c8d;
 }
 
-/* Select de Status */
 .status-select {
   padding: 6px;
   border-radius: 4px;
@@ -460,10 +453,9 @@ td {
   border-color: #3498db;
 }
 
-/* --- NOVOS ESTILOS PARA OS BOTÕES --- */
 .action-cell {
   text-align: right;
-  white-space: nowrap; /* Garante que os botões fiquem na mesma linha */
+  white-space: nowrap;
   min-width: 60px;
 }
 
@@ -479,14 +471,14 @@ td {
 }
 
 .btn-edit {
-  color: #f39c12; /* Laranja para editar */
+  color: #f39c12;
 }
 .btn-edit:hover {
   background: #fef5e7;
 }
 
 .btn-delete {
-  color: #e74c3c; /* Vermelho para excluir */
+  color: #e74c3c;
 }
 .btn-delete:hover {
   background: #fadbd8;

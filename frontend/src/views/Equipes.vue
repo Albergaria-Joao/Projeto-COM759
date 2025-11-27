@@ -76,18 +76,18 @@
 </template>
 
 <script>
-/* eslint-disable */
+
 import api from '@/api'
 
 export default {
   name: 'EquipesView',
-  data() {
+  data () {
     return {
       equipes: [],
       user: null
     }
   },
-  async created() {
+  async created () {
     this.fetchUser()
     if (this.user && this.user.auth === 'admin') {
       this.fetchEquipes()
@@ -107,7 +107,7 @@ export default {
       }
     },
 
-    async fetchEquipes() {
+    async fetchEquipes () {
       try {
         const params = new URLSearchParams()
         const res = await api.post('/get-equipes', params)
@@ -117,7 +117,7 @@ export default {
       }
     },
 
-    async logout() {
+    async logout () {
       try {
         const params = new URLSearchParams()
         await api.post('/logout', params)
@@ -137,22 +137,22 @@ export default {
     },
 
     goToCreate () {
-      this.$router.push("/create-equipe");
+      this.$router.push('/create-equipe')
     },
 
-    async deletarEquipe(id) {
-      if (!confirm("Tem certeza que deseja excluir esta equipe?")) {
+    async deletarEquipe (id) {
+      if (!confirm('Tem certeza que deseja excluir esta equipe?')) {
         return
       }
       try {
         const payload = new URLSearchParams()
-        payload.append("id", id)
+        payload.append('id', id)
         const res = await api.post(`/delete-equipe/${id}`, {})
-        alert(res.data.mensagem || "Equipe removida!")
+        alert(res.data.mensagem || 'Equipe removida!')
         this.fetchEquipes()
       } catch (err) {
-        console.error("Erro ao excluir equipe:", err)
-        alert("Erro ao excluir.")
+        console.error('Erro ao excluir equipe:', err)
+        alert('Erro ao excluir.')
       }
     }
   }
@@ -160,7 +160,7 @@ export default {
 </script>
 
 <style scoped>
-/* Layout Geral */
+
 .page-container {
   display: flex;
   flex-direction: column;
@@ -169,7 +169,6 @@ export default {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Navbar */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -200,10 +199,8 @@ export default {
 .btn-nav:hover { background: rgba(255,255,255,0.2); }
 .btn-logout:hover { background: #c0392b; border-color: #c0392b; }
 
-/* Área de Conteúdo */
 .content-area { padding: 40px; display: flex; justify-content: center; }
 
-/* Cartão */
 .card-container {
   background: white;
   border-radius: 8px;
@@ -223,7 +220,6 @@ export default {
 }
 .card-header h3 { margin: 0; color: #2c3e50; font-size: 1.1rem; }
 
-/* Header Actions (Novo) */
 .header-actions {
   display: flex;
   align-items: center;
@@ -239,9 +235,8 @@ export default {
   font-weight: bold;
 }
 
-/* --- ESTILO NOVO DO BOTÃO CRIAR --- */
 .btn-create {
-  background-color: #27ae60; /* Verde */
+  background-color: #27ae60;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -257,7 +252,6 @@ export default {
   transform: translateY(-1px);
 }
 
-/* Tabela */
 .table-responsive { width: 100%; overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
 
@@ -282,10 +276,9 @@ td {
 .team-name { font-weight: 600; color: #2980b9; }
 .team-desc { color: #636e72; }
 
-/* --- ESTILO NOVO DOS BOTÕES DE AÇÃO --- */
 .actions-cell {
-  text-align: right; /* Joga os botões para a direita */
-  white-space: nowrap; /* Não deixa quebrar linha */
+  text-align: right;
+  white-space: nowrap;
 }
 
 .btn-action {
@@ -295,20 +288,20 @@ td {
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
-  margin-left: 8px; /* Espaço entre eles */
+  margin-left: 8px;
   transition: all 0.2s;
   color: white;
 }
 
 .btn-edit {
-  background-color: #f39c12; /* Laranja/Amarelo */
+  background-color: #f39c12;
 }
 .btn-edit:hover {
   background-color: #e67e22;
 }
 
 .btn-delete {
-  background-color: #e74c3c; /* Vermelho */
+  background-color: #e74c3c;
 }
 .btn-delete:hover {
   background-color: #c0392b;
@@ -316,7 +309,6 @@ td {
 
 .empty-state { text-align: center; padding: 40px; color: #b2bec3; font-style: italic; }
 
-/* Access Denied */
 .access-denied-card {
   background: white; padding: 40px; border-radius: 8px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; max-width: 400px;

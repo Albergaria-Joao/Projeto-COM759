@@ -22,7 +22,7 @@ mongo_uri = os.getenv("MONGO_URI")
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = False 
 
-CORS(app, resources={r"/*": {"origins": ["http://localhost:8081", "http://127.0.0.1:8081"]}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "http://127.0.0.1:8080"]}}, supports_credentials=True)
 
 mongodb_client = PyMongo(app, uri=mongo_uri)
 db = mongodb_client.db

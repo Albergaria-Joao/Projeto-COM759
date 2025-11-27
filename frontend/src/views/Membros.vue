@@ -79,29 +79,29 @@
 </template>
 
 <script>
-/* eslint-disable */
-import api from '@/api';
+
+import api from '@/api'
 
 export default {
   name: 'MembrosView',
-  data() {
+  data () {
     return {
       membros: [],
-      user: null,
-    };
+      user: null
+    }
   },
   computed: {
-    membrosFiltered() {
-      if (!this.user) return this.membros;
-      return this.membros;
-    },
+    membrosFiltered () {
+      if (!this.user) return this.membros
+      return this.membros
+    }
   },
-  created() {
-    this.fetchUser();
-    this.fetchMembros();
+  created () {
+    this.fetchUser()
+    this.fetchMembros()
   },
   methods: {
-    fetchUser() {
+    fetchUser () {
       this.user = {
         nome: localStorage.getItem('nome'),
         auth: localStorage.getItem('auth'),
@@ -109,61 +109,61 @@ export default {
         equipe_id: localStorage.getItem('equipe_id')
       }
       if (this.user.auth !== 'admin' && this.user.auth !== 'gerente') {
-        alert("Acesso negado")
+        alert('Acesso negado')
         this.$router.push('/dashboard')
       }
     },
 
-    async fetchMembros() {
+    async fetchMembros () {
       try {
-        const res = await api.post('/get-membros', {});
-        this.membros = res.data;
+        const res = await api.post('/get-membros', {})
+        this.membros = res.data
       } catch (e) {
-        console.error('Erro ao buscar membros:', e);
+        console.error('Erro ao buscar membros:', e)
       }
     },
 
-    goToCreate() {
-      this.$router.push('/create-membro');
+    goToCreate () {
+      this.$router.push('/create-membro')
     },
 
-    editarMembro(id) {
-      this.$router.push(`/update-membro?id=${id}`);
+    editarMembro (id) {
+      this.$router.push(`/update-membro?id=${id}`)
     },
 
-    async deletarMembro(id) {
-      if (!confirm("Tem certeza que deseja excluir este membro?")) {
-        return;
+    async deletarMembro (id) {
+      if (!confirm('Tem certeza que deseja excluir este membro?')) {
+        return
       }
       try {
-        const res = await api.post(`/delete-membro/${id}`, {});
-        alert(res.data.mensagem || "Membro removido!");
-        this.fetchMembros();
+        const res = await api.post(`/delete-membro/${id}`, {})
+        alert(res.data.mensagem || 'Membro removido!')
+        this.fetchMembros()
       } catch (err) {
-        console.error("Erro ao excluir membro:", err);
-        alert("Erro ao excluir.");
+        console.error('Erro ao excluir membro:', err)
+        alert('Erro ao excluir.')
       }
     },
 
-    async logout() {
+    async logout () {
       try {
-        await api.post('/logout', {});
+        await api.post('/logout', {})
       } catch (err) {
-        console.error(err);
+        console.error(err)
       } finally {
         localStorage.removeItem('nome')
         localStorage.removeItem('auth')
         localStorage.removeItem('username')
         localStorage.removeItem('equipe_id')
-        this.$router.push('/login');
+        this.$router.push('/login')
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style scoped>
-/* Layout Geral */
+
 .page-container {
   display: flex;
   flex-direction: column;
@@ -172,7 +172,6 @@ export default {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Navbar */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -230,14 +229,12 @@ export default {
 .btn-nav:hover { background: rgba(255, 255, 255, 0.2); }
 .btn-logout:hover { background: #c0392b; border-color: #c0392b; }
 
-/* Área de Conteúdo */
 .content-area {
   padding: 40px;
   display: flex;
   justify-content: center;
 }
 
-/* Cartão */
 .card-container {
   background: white;
   border-radius: 8px;
@@ -290,7 +287,6 @@ export default {
   font-weight: bold;
 }
 
-/* Tabela */
 .table-responsive { width: 100%; overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
 

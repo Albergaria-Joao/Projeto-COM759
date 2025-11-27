@@ -1,7 +1,6 @@
 <template>
   <div class="page-container">
 
-    <!-- NAVBAR -->
     <header class="navbar">
       <div class="brand">
         <h2>Gestão de Tarefas</h2>
@@ -118,7 +117,6 @@ export default {
 </script>
 
 <style scoped>
-/* Mesmo estilo da outra página */
 
 .page-container {
   display: flex;
@@ -170,7 +168,6 @@ export default {
   text-transform: uppercase;
 }
 
-/* Botões da Navbar */
 .btn-refresh, .btn-logout {
   padding: 8px 16px;
   border-radius: 4px;

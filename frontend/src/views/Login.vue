@@ -98,7 +98,7 @@ export default {
 </script>
 
 <style scoped>
-/* Fundo Elegante (Gradiente Azul Escuro) */
+
 .login-container {
   display: flex;
   justify-content: center;
@@ -108,19 +108,18 @@ export default {
   font-family: 'Roboto', 'Helvetica Neue', sans-serif;
 }
 
-/* Cartão com sombra suave */
 .login-card {
   background: white;
   padding: 2.5rem;
   border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2); /* Sombra mais sofisticada */
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   width: 100%;
   max-width: 380px;
 }
 
 .login-header h2 {
   text-align: center;
-  color: #2c3e50; /* Azul chumbo */
+  color: #2c3e50;
   margin-bottom: 0.5rem;
   font-weight: 700;
 }
@@ -157,15 +156,14 @@ input {
 
 input:focus {
   outline: none;
-  border-color: #2980b9; /* Azul focado */
+  border-color: #2980b9;
   background-color: #fff;
 }
 
-/* Botão Profissional */
 .btn-submit {
   width: 100%;
   padding: 14px;
-  background-color: #2980b9; /* Azul Corporativo */
+  background-color: #2980b9;
   color: white;
   border: none;
   border-radius: 6px;
@@ -177,7 +175,7 @@ input:focus {
 }
 
 .btn-submit:hover:not(:disabled) {
-  background-color: #1a5276; /* Azul mais escuro no hover */
+  background-color: #1a5276;
 }
 
 .btn-submit:active {

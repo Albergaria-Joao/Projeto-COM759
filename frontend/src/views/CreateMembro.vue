@@ -91,7 +91,7 @@ export default {
 
   data () {
     return {
-      user: null, 
+      user: null,
       listaEquipes: [],
 
       form: {
@@ -100,14 +100,14 @@ export default {
         email: '',
         senha: '',
         equipe_id: '',
-        auth: 'peao' 
+        auth: 'peao'
       }
     }
   },
 
   created () {
-    this.fetchUser() 
-    this.fetchEquipes() 
+    this.fetchUser()
+    this.fetchEquipes()
   },
 
   methods: {
@@ -155,13 +155,12 @@ export default {
 </script>
 
 <style scoped>
-/* O DESIGN SYSTEM (MANTIDO PARA FICAR BONITO) */
+
 .page-container {
   display: flex; flex-direction: column; height: 100vh;
   background-color: #f4f6f9; font-family: 'Segoe UI', sans-serif;
 }
 
-/* Navbar */
 .navbar {
   display: flex; justify-content: space-between; align-items: center;
   padding: 0 2rem; height: 60px; color: white;
@@ -180,7 +179,6 @@ export default {
 }
 .btn-nav:hover { background: rgba(255,255,255,0.2); }
 
-/* Conteúdo e Cards */
 .content-area { padding: 40px; display: flex; justify-content: center; }
 
 .card-container {
@@ -195,7 +193,6 @@ export default {
 
 .card-body { padding: 30px; }
 
-/* Formulário */
 .form-row { display: flex; gap: 20px; margin-bottom: 20px; }
 .form-group { margin-bottom: 0; }
 .half { flex: 1; }
@@ -213,7 +210,6 @@ input:focus, select:focus {
   outline: none; border-color: #3498db; background-color: white;
 }
 
-/* Botões */
 .form-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
 
 .btn-save {

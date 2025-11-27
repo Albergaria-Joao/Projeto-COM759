@@ -190,7 +190,7 @@ export default {
 </script>
 
 <style scoped>
-/* REUTILIZANDO O DESIGN SYSTEM */
+
 .page-container {
   display: flex; flex-direction: column; height: 100vh;
   background-color: #f4f6f9; font-family: 'Segoe UI', sans-serif;
