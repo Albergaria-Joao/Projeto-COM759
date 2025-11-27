@@ -67,7 +67,7 @@ def index():
     return render_template("dashboard.html", membros=membros, tarefas=tarefas, equipes=db.equipe.find().sort("_id", 1))
     #return flask.jsonify(json.loads(json_util.dumps(db.membro.find({}).sort("_id", 1))))
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['POST'])
 def login():
     # if session.get("username") != None:
     #     return redirect("/index")
@@ -132,7 +132,7 @@ def criar_membro_db(dados):
     membro.insert_one(membro_dados)
     #
 
-@app.route('/create-membro', methods=['GET', 'POST'])
+@app.route('/create-membro', methods=['POST'])
 @gerente_auth
 def create_membro():
     json_data = request.get_json()
@@ -204,7 +204,7 @@ def get_membros(membroId=None):
     return jsonify(json.loads(json_util.dumps(membros)))
 
 
-@app.route('/update-membro', methods=['GET', 'POST'])
+@app.route('/update-membro', methods=['POST'])
 @gerente_auth
 def update_membro():
     if request.method == 'GET':
@@ -251,7 +251,7 @@ def delete_membro(membroId):
 # TAREFA
 
 
-@app.route('/create-tarefa', methods=['GET', 'POST'])
+@app.route('/create-tarefa', methods=['POST'])
 @gerente_auth
 def create_tarefa():
 
@@ -352,7 +352,7 @@ def get_tarefas(tarefaId=None):
     
 
     
-@app.route('/update-tarefa', methods=['GET', 'POST'])
+@app.route('/update-tarefa', methods=['POST'])
 @gerente_auth
 def update_tarefa():
     if request.method == 'GET':
@@ -438,7 +438,7 @@ def get_equipes(equipeId=None):
 
     return flask.jsonify(json.loads(json_util.dumps(db.equipe.find({}).sort("nome", 1))))
 
-@app.route('/update-equipe', methods=['GET', 'POST'])
+@app.route('/update-equipe', methods=['POST'])
 @admin_auth
 def update_equipe():
     if request.method == 'GET':
