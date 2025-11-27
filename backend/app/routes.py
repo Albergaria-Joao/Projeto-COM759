@@ -16,9 +16,6 @@ import random
 
 
 
-
-
-
 def admin_auth(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -50,18 +47,9 @@ def index():
     membros = join_membros()
 
     return render_template("dashboard.html", membros=membros, tarefas=tarefas, equipes=db.equipe.find().sort("_id", 1))
-    #return flask.jsonify(json.loads(json_util.dumps(db.membro.find({}).sort("_id", 1))))
 
 @app.route('/login', methods=['POST'])
 def login():
-    # if session.get("username") != None:
-    #     return redirect("/index")
-    # if (request.method == 'GET'):
-    #     return render_template("login.html")
-    
-    
-    
-
     json_data = request.get_json()
     print("dados: ", json_data)
     user = db.membro.find_one({"login": json_data["login"]})
@@ -78,10 +66,6 @@ def login():
     else:
         return jsonify(status=403,mensagem='login falhou')
             
-    #     return redirect("/index")
-    # return redirect("/login")
-
-        # Descomentar para ele mandar isso pro frontend depois
     
 
     
@@ -113,9 +97,8 @@ def criar_membro_db(dados):
         "auth": dados["auth"]
     }
 
-
     membro.insert_one(membro_dados)
-    #
+    
 
 @app.route('/create-membro', methods=['POST'])
 @gerente_auth
@@ -126,7 +109,6 @@ def create_membro():
         return render_template("create_membro.html")
 
     if json_data is not None:
-        #db.membro.insert_one(json_data)
         if db.membro.find_one({"login": json_data["login"]}) is not None:
             return jsonify(mensagem='membro já existe')
 
@@ -256,8 +238,6 @@ def create_tarefa():
             "criacao": now.strftime("%Y-%m-%dT%H:%M"),
             "status": "A fazer"
         }
-
-    #json_data["criacao"] = now
     
         db.tarefa.insert_one(tarefa_dados)
         return jsonify(mensagem='tarefa criada')
@@ -371,8 +351,7 @@ def update_status_tarefa(tarefaId):
     db.tarefa.update_one({'_id': ObjectId(tarefaId)}, 
                             {"$set": {'status': json_data["status"]}})
     return jsonify(mensagem='tarefa atualizado')
-    # else:
-    #     return jsonify(mensagem='tarefa não atualizado')
+
 
 @app.route("/delete-tarefa/<string:tarefaId>", methods=['POST'])
 @gerente_auth
@@ -391,12 +370,10 @@ def delete_tarefa(tarefaId):
 @admin_auth
 def create_equipe():
     print(dict(session))
-    #criar_membro()
     if request.method == 'GET':
         return render_template("create_equipe.html")
 
     json_data = request.get_json()
-    #json_data["criacao"] = now
 
     if json_data is not None:
 

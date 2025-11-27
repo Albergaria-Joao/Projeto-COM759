@@ -132,11 +132,8 @@ Antes de começar, certifique-se de ter instalado em sua máquina:
 9.  **Garanta que o CORS no backend libera a porta correta:**
 
     Um erro comum é que o backend não autorize o acesso a suas rotas pelo frontend por uma configuração errada do CORS. 
-    Certifique-se de que, no arquivo `backend/app/__init__.py`, o parâmetro `origins` tenha a mesma porta indicada no terminal ao rodar o frontend (geralmente 8080 ou 8081)
 
-    ```bash
-    npm run dev
-    ```
+    Certifique-se de que, no arquivo `backend/app/__init__.py`, o parâmetro `origins` tenha a mesma porta indicada no terminal ao rodar o frontend (geralmente 8080 ou 8081)
 
 10.  **Acesse a aplicação:**
 
