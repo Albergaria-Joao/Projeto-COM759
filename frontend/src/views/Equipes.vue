@@ -24,8 +24,12 @@
       <div v-if="user && user.auth === 'admin'" class="card-container">
         <div class="card-header">
           <h3>Equipes Cadastradas</h3>
-          <button @click="goToCreate">Criar Equipe</button>
-          <span class="badge">{{ equipes.length }} equipes</span>
+          <div class="header-actions">
+             <button @click="goToCreate" class="btn-create">
+              + Criar Equipe
+            </button>
+            <span class="badge">{{ equipes.length }} equipes</span>
+          </div>
         </div>
 
         <div class="table-responsive">
@@ -34,24 +38,21 @@
               <tr>
                 <th>Nome da Equipe</th>
                 <th>Descrição</th>
-              </tr>
+                <th style="text-align: right;">Ações</th> </tr>
             </thead>
             <tbody>
               <tr v-if="equipes.length === 0">
-                <td colspan="2" class="empty-state">Nenhuma equipe encontrada.</td>
+                <td colspan="3" class="empty-state">Nenhuma equipe encontrada.</td>
               </tr>
               <tr v-for="e in equipes" :key="e._id.$oid">
                 <td class="team-name">{{ e.nome }}</td>
                 <td class="team-desc">{{ e.descricao }}</td>
-                <!-- BOTÕES -->
                 <td class="actions-cell">
-                  <button class="btn-edit"
-                          @click="editarEquipe(e._id.$oid)">
+                  <button class="btn-action btn-edit" @click="editarEquipe(e._id.$oid)" title="Editar">
                     ✏️ Editar
                   </button>
 
-                  <button class="btn-delete"
-                          @click="deletarEquipe(e._id.$oid)">
+                  <button class="btn-action btn-delete" @click="deletarEquipe(e._id.$oid)" title="Excluir">
                     🗑️ Excluir
                   </button>
                 </td>
@@ -88,20 +89,12 @@ export default {
   },
   async created() {
     this.fetchUser()
-    // Só busca equipes se for admin, para economizar rede
     if (this.user && this.user.auth === 'admin') {
       this.fetchEquipes()
     }
   },
   methods: {
-    // Mesma lógica do Dashboard (leitura do localStorage)
     fetchUser () {
-      // const dadosSalvos = localStorage.getItem('usuario_app')
-      // if (dadosSalvos) {
-      //   this.user = JSON.parse(dadosSalvos)
-      // } else {
-      //   this.user = { nome: 'Visitante', auth: 'guest' }
-      // }
       this.user = {
         nome: localStorage.getItem('nome'),
         auth: localStorage.getItem('auth'),
@@ -112,7 +105,6 @@ export default {
     async fetchEquipes() {
       try {
         const params = new URLSearchParams()
-        // O endpoint é POST e espera form-data
         const res = await api.post('/get-equipes', params)
         this.equipes = res.data
       } catch (e) {
@@ -146,25 +138,17 @@ export default {
       if (!confirm("Tem certeza que deseja excluir esta equipe?")) {
         return
       }
-
       try {
         const payload = new URLSearchParams()
         payload.append("id", id)
-
         const res = await api.post(`/delete-equipe/${id}`, {})
-
         alert(res.data.mensagem || "Equipe removida!")
-
-        // Atualiza tabela
         this.fetchEquipes()
-
       } catch (err) {
         console.error("Erro ao excluir equipe:", err)
         alert("Erro ao excluir.")
       }
     }
-
-
   }
 }
 </script>
@@ -179,7 +163,7 @@ export default {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Navbar (Copiada do Dashboard para consistência) */
+/* Navbar */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -191,38 +175,12 @@ export default {
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.brand h2 {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
+.brand h2 { margin: 0; font-size: 1.2rem; font-weight: 600; }
+.user-controls { display: flex; align-items: center; gap: 15px; }
+.user-info { text-align: right; margin-right: 10px; }
+.user-name { display: block; font-weight: bold; font-size: 0.9rem; }
+.user-role { display: block; font-size: 0.75rem; opacity: 0.8; text-transform: uppercase; }
 
-.user-controls {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.user-info {
-  text-align: right;
-  margin-right: 10px;
-}
-
-.user-name {
-  display: block;
-  font-weight: bold;
-  font-size: 0.9rem;
-}
-
-.user-role {
-  display: block;
-  font-size: 0.75rem;
-  opacity: 0.8;
-  text-transform: uppercase;
-}
-
-/* Botões da Navbar */
 .btn-nav, .btn-logout {
   padding: 8px 16px;
   border-radius: 4px;
@@ -233,24 +191,13 @@ export default {
   color: white;
   transition: all 0.2s;
 }
-
-.btn-nav:hover {
-  background: rgba(255,255,255,0.2);
-}
-
-.btn-logout:hover {
-  background: #c0392b;
-  border-color: #c0392b;
-}
+.btn-nav:hover { background: rgba(255,255,255,0.2); }
+.btn-logout:hover { background: #c0392b; border-color: #c0392b; }
 
 /* Área de Conteúdo */
-.content-area {
-  padding: 40px;
-  display: flex;
-  justify-content: center;
-}
+.content-area { padding: 40px; display: flex; justify-content: center; }
 
-/* Cartão da Tabela */
+/* Cartão */
 .card-container {
   background: white;
   border-radius: 8px;
@@ -268,32 +215,45 @@ export default {
   align-items: center;
   background-color: #fff;
 }
+.card-header h3 { margin: 0; color: #2c3e50; font-size: 1.1rem; }
 
-.card-header h3 {
-  margin: 0;
-  color: #2c3e50;
-  font-size: 1.1rem;
+/* Header Actions (Novo) */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .badge {
   background: #3498db;
   color: white;
-  padding: 4px 10px;
-  border-radius: 12px;
+  padding: 6px 12px;
+  border-radius: 20px;
   font-size: 0.8rem;
   font-weight: bold;
 }
 
-/* Tabela Estilizada */
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
+/* --- ESTILO NOVO DO BOTÃO CRIAR --- */
+.btn-create {
+  background-color: #27ae60; /* Verde */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+  box-shadow: 0 2px 5px rgba(39, 174, 96, 0.3);
+}
+.btn-create:hover {
+  background-color: #219150;
+  transform: translateY(-1px);
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
+/* Tabela */
+.table-responsive { width: 100%; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
 
 th {
   background-color: #f8f9fa;
@@ -310,69 +270,55 @@ td {
   padding: 15px 20px;
   border-bottom: 1px solid #f1f2f6;
   color: #2c3e50;
+  vertical-align: middle;
 }
 
-tr:last-child td {
-  border-bottom: none;
+.team-name { font-weight: 600; color: #2980b9; }
+.team-desc { color: #636e72; }
+
+/* --- ESTILO NOVO DOS BOTÕES DE AÇÃO --- */
+.actions-cell {
+  text-align: right; /* Joga os botões para a direita */
+  white-space: nowrap; /* Não deixa quebrar linha */
 }
 
-tr:hover {
-  background-color: #fcfcfc;
-}
-
-.team-name {
-  font-weight: 600;
-  color: #2980b9;
-}
-
-.team-desc {
-  color: #636e72;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 40px;
-  color: #b2bec3;
-  font-style: italic;
-}
-
-/* Alerta de Acesso Negado */
-.access-denied-card {
-  background: white;
-  padding: 40px;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  text-align: center;
-  max-width: 400px;
-}
-
-.icon-lock {
-  font-size: 3rem;
-  margin-bottom: 15px;
-}
-
-.access-denied-card h3 {
-  color: #c0392b;
-  margin-bottom: 10px;
-}
-
-.access-denied-card p {
-  color: #7f8c8d;
-  margin-bottom: 25px;
-}
-
-.btn-back {
-  background-color: #34495e;
-  color: white;
+.btn-action {
   border: none;
-  padding: 10px 20px;
+  padding: 6px 12px;
   border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.3s;
+  margin-left: 8px; /* Espaço entre eles */
+  transition: all 0.2s;
+  color: white;
 }
 
-.btn-back:hover {
-  background-color: #2c3e50;
+.btn-edit {
+  background-color: #f39c12; /* Laranja/Amarelo */
+}
+.btn-edit:hover {
+  background-color: #e67e22;
+}
+
+.btn-delete {
+  background-color: #e74c3c; /* Vermelho */
+}
+.btn-delete:hover {
+  background-color: #c0392b;
+}
+
+.empty-state { text-align: center; padding: 40px; color: #b2bec3; font-style: italic; }
+
+/* Access Denied */
+.access-denied-card {
+  background: white; padding: 40px; border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; max-width: 400px;
+}
+.icon-lock { font-size: 3rem; margin-bottom: 15px; }
+.access-denied-card h3 { color: #c0392b; margin-bottom: 10px; }
+.btn-back {
+  background-color: #34495e; color: white; border: none;
+  padding: 10px 20px; border-radius: 4px; cursor: pointer;
 }
 </style>

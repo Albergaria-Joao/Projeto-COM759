@@ -6,6 +6,12 @@ import Membros from '@/views/Membros'
 import Equipes from '@/views/Equipes'
 import UpdateEquipe from '@/views/UpdateEquipe'
 import CreateEquipe from '@/views/CreateEquipe'
+
+// --- ADICIONE ESTES IMPORTS ---
+import CreateMembro from '@/views/CreateMembro'
+import UpdateMembro from '@/views/UpdateMembro' // Já vou deixar este pronto pra você
+// ------------------------------
+
 Vue.use(Router)
 
 export default new Router({
@@ -17,6 +23,8 @@ export default new Router({
     { path: '/membros', component: Membros },
     { path: '/equipes', component: Equipes },
     { path: '/update-equipe', component: UpdateEquipe },
-    { path: '/create-equipe', component: CreateEquipe }
+    { path: '/create-equipe', component: CreateEquipe },
+    { path: '/create-membro', component: CreateMembro },
+    { path: '/update-membro', component: UpdateMembro }
   ]
 })
