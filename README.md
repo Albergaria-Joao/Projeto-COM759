@@ -57,7 +57,7 @@ Este projeto é uma aplicação web para gerenciamento de tarefas, equipes e mem
 Antes de começar, certifique-se de ter instalado em sua máquina:
 * [Node.js](https://nodejs.org/) (Versão 12 ou superior)
 * [NPM](https://www.npmjs.com/) ou Yarn.
-* [Python](https://www.python.org/downloads/).
+* [Python](https://www.python.org/downloads/) (Versão sugerida: 3.13).
 ---
 
 ## Como rodar o Projeto
