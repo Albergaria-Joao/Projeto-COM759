@@ -33,7 +33,7 @@
                 <th>Tarefa</th>
                 <th>Resp.</th>
                 <th>Ação</th>
-                <th></th>
+                <th class="actions-header"></th>
               </tr>
             </thead>
             <tbody>
@@ -51,9 +51,8 @@
                   </select>
                 </td>
                 <td class="action-cell">
-                  <button @click="deleteTarefa(t._id.$oid)" class="btn-delete" title="Excluir">
-                    ✕
-                  </button>
+                  <button @click="editTarefa(t._id.$oid)" class="btn-edit" title="Editar">✎</button>
+                  <button @click="deleteTarefa(t._id.$oid)" class="btn-delete" title="Excluir">✕</button>
                 </td>
               </tr>
             </tbody>
@@ -73,7 +72,7 @@
                 <th>Tarefa</th>
                 <th>Resp.</th>
                 <th>Ação</th>
-                <th></th>
+                <th class="actions-header"></th>
               </tr>
             </thead>
             <tbody>
@@ -91,9 +90,8 @@
                   </select>
                 </td>
                 <td class="action-cell">
-                  <button @click="deleteTarefa(t._id.$oid)" class="btn-delete" title="Excluir">
-                    ✕
-                  </button>
+                  <button @click="editTarefa(t._id.$oid)" class="btn-edit" title="Editar">✎</button>
+                  <button @click="deleteTarefa(t._id.$oid)" class="btn-delete" title="Excluir">✕</button>
                 </td>
               </tr>
             </tbody>
@@ -113,7 +111,7 @@
                 <th>Tarefa</th>
                 <th>Resp.</th>
                 <th>Ação</th>
-                <th></th>
+                <th class="actions-header"></th>
               </tr>
             </thead>
             <tbody>
@@ -131,9 +129,8 @@
                   </select>
                 </td>
                 <td class="action-cell">
-                  <button @click="deleteTarefa(t._id.$oid)" class="btn-delete" title="Excluir">
-                    ✕
-                  </button>
+                  <button @click="editTarefa(t._id.$oid)" class="btn-edit" title="Editar">✎</button>
+                  <button @click="deleteTarefa(t._id.$oid)" class="btn-delete" title="Excluir">✕</button>
                 </td>
               </tr>
             </tbody>
@@ -160,10 +157,8 @@ export default {
       const groups = { 'A fazer': [], 'Em execução': [], 'Concluída': [] }
 
       this.tarefas.forEach(t => {
-        // Garante que o status existe nas chaves, senão joga pro 'A fazer'
         let s = t.status
         if (!groups[s]) s = 'A fazer'
-
         groups[s].push(t)
       })
 
@@ -171,18 +166,11 @@ export default {
     }
   },
   created () {
-    this.fetchUser() // Carrega usuário do localStorage
-    this.fetchAll() // Busca tarefas do backend
+    this.fetchUser()
+    this.fetchAll()
   },
   methods: {
-    // Busca usuário simulado do LocalStorage
     fetchUser () {
-      // const dadosSalvos = localStorage.getItem('usuario_app')
-      // if (dadosSalvos) {
-      //   this.user = JSON.parse(dadosSalvos)
-      // } else {
-      //   this.user = { nome: 'Visitante', auth: 'guest' }
-      // }
       this.user = {
         nome: localStorage.getItem('nome'),
         auth: localStorage.getItem('auth'),
@@ -192,23 +180,21 @@ export default {
 
     async fetchAll () {
       try {
-        // Envia params vazio para garantir header correto no backend
         const res = await api.post('/get-tarefas', {})
-
-        // O Axios geralmente converte o JSON automaticamente
         this.tarefas = res.data
       } catch (err) {
         console.error('Erro ao buscar tarefas:', err)
       }
     },
 
+    // --- CORREÇÃO DO ERRO 415 AQUI ---
     async changeStatus (t) {
       try {
-        // Envia dados como Formulário
-        const params = new URLSearchParams()
-        params.append('status', t.status)
-
-        await api.post(`/update-status-tarefa/${t._id.$oid}`, params)
+        // MANDA JSON AO INVÉS DE URLSEARCHPARAMS
+        const payload = {
+          status: t.status
+        }
+        await api.post(`/update-status-tarefa/${t._id.$oid}`, payload)
 
         // Atualiza a lista para garantir sincronia
         this.fetchAll()
@@ -218,14 +204,16 @@ export default {
       }
     },
 
+    // --- NOVO MÉTODO DE EDITAR ---
+    editTarefa (id) {
+      this.$router.push(`/update-tarefa?id=${id}`)
+    },
+
     async deleteTarefa (id) {
       if (!confirm('Tem certeza que deseja excluir esta tarefa?')) return
 
       try {
-        // Envia POST vazio (mas formatado corretamente)
-        const params = new URLSearchParams()
-        await api.post(`/delete-tarefa/${id}`, params)
-
+        await api.post(`/delete-tarefa/${id}`, {}) // Manda JSON vazio
         this.fetchAll()
       } catch (err) {
         console.error('Erro ao excluir:', err)
@@ -235,12 +223,10 @@ export default {
 
     async logout () {
       try {
-        const params = new URLSearchParams()
-        await api.post('/logout', params)
+        await api.post('/logout', {}) // Manda JSON vazio
       } catch (err) {
         console.error(err)
       } finally {
-        // Limpa o usuário simulado e redireciona
         localStorage.removeItem('nome')
         localStorage.removeItem('auth')
         localStorage.removeItem('username')
@@ -257,7 +243,7 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f4f6f9; /* Fundo cinza claro corporativo */
+  background-color: #f4f6f9;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -268,7 +254,7 @@ export default {
   align-items: center;
   padding: 0 2rem;
   height: 60px;
-  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); /* Mesmo gradiente do login */
+  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
   color: white;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
@@ -331,7 +317,7 @@ export default {
   gap: 20px;
   padding: 20px;
   flex: 1;
-  overflow-x: auto; /* Permite scroll se a tela for pequena */
+  overflow-x: auto;
 }
 
 .column-card {
@@ -342,7 +328,7 @@ export default {
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
-  height: 100%; /* Ocupa altura toda */
+  height: 100%;
   max-height: calc(100vh - 100px);
 }
 
@@ -440,23 +426,34 @@ td {
   border-color: #3498db;
 }
 
-/* Botão de Excluir */
+/* --- NOVOS ESTILOS PARA OS BOTÕES --- */
 .action-cell {
   text-align: right;
-  width: 40px;
+  white-space: nowrap; /* Garante que os botões fiquem na mesma linha */
+  min-width: 60px;
+}
+
+.btn-edit, .btn-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: background 0.2s;
+  margin-left: 2px;
+}
+
+.btn-edit {
+  color: #f39c12; /* Laranja para editar */
+}
+.btn-edit:hover {
+  background: #fef5e7;
 }
 
 .btn-delete {
-  background: none;
-  border: none;
-  color: #e74c3c;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: background 0.2s;
+  color: #e74c3c; /* Vermelho para excluir */
 }
-
 .btn-delete:hover {
   background: #fadbd8;
 }
