@@ -1,30 +1,39 @@
-# 🚀 Gestão de Tarefas e Equipes - Frontend
+# Projeto Final COM759 - Gestão de Tarefas e Equipes
 
-Bem-vindo ao repositório do **Frontend** do sistema de Gestão de Tarefas. Esta é uma Single Page Application (SPA) desenvolvida com **Vue.js**, focada na organização de projetos, equipes e monitoramento de atividades através de um painel estilo Kanban.
+Facamp - Faculdades de Campinas, Novembro de 2025
 
-> **Nota:** Este documento refere-se apenas à camada de interface (Client-side). A documentação da API e Banco de Dados encontra-se na seção de Backend.
+Programação Avançada - COM759, Prof. Dr. José Martins Jr.
+
+* João Vítor Albergaria Barbosa | 202310501
+* Gabriel Palace Novaes Henrique | 202310491
 
 ---
 
-## 🖼️ Visão Geral
+## Visão Geral
 
-O projeto foi construído com um design system personalizado, focado em usabilidade e clareza visual. A aplicação consome uma API RESTful e gerencia o estado da sessão do usuário.
+Este projeto é uma aplicação web para gerenciamento de tarefas, equipes e membros, inspirada em plataformas de Kanban como o Trello.
 
 ### Principais Tecnologias
+
+#### No frontend:
 * **Vue.js 2**: Framework JavaScript progressivo.
 * **Vue Router**: Gerenciamento de rotas e navegação.
-* **Axios**: Cliente HTTP para comunicação com o Backend.
-* **CSS Scoped**: Estilização modular e responsiva (Design System próprio).
+* **Axios**: Cliente HTTP para comunicação com o backend.
+* **CSS Scoped**: Estilização modular e responsiva.
+
+#### No backend:
+* **Flask**: Framework para desenvolver aplicações web em Python. Usado para construir a API.
+* **PyMongo**: Conexão com banco de dados NoSQL.
 
 ---
 
-## ✨ Funcionalidades do Frontend
+## Funcionalidades principais
 
 ### 🔐 Autenticação e Segurança
 * **Login de Usuário**: Interface de acesso com validação de credenciais.
 * **Controle de Sessão**: Persistência de login utilizando Cookies seguros (`HttpOnly` via Backend) e armazenamento local de metadados do usuário.
 * **Logout**: Encerramento seguro da sessão.
-* **Controle de Acesso (RBAC)**: A interface se adapta dinamicamente dependendo do nível do usuário (**Admin**, **Gerente** ou **Peão/Membro**), ocultando ou exibindo botões de edição e exclusão.
+* **Controle de Acesso (RBAC)**: A interface se adapta dinamicamente dependendo do nível do usuário (**Admin**, **Gerente** ou **Peão/Membro**), ocultando ou exibindo botões de edição e exclusão. Além disso, as rotas do backend são bloqueadas de acordo com essa hierarquia usando decoradores, o que garante uma camada extra de segurança.
 
 ### 📊 Dashboard (Kanban)
 * **Visualização de Tarefas**: Organização visual em três colunas: *A Fazer*, *Em Execução* e *Concluída*.
@@ -34,7 +43,7 @@ O projeto foi construído com um design system personalizado, focado em usabilid
 
 ### 👥 Gestão de Membros e Equipes
 * **CRUD Completo**: Interfaces para Criar, Ler, Atualizar e Deletar Equipes e Membros.
-* **Associação**: Vínculo inteligente de membros a equipes específicas através de menus de seleção dinâmicos.
+* **Associação**: Vínculo inteligente de membros a equipes específicas através de menus de seleção dinâmicos atualizados por regras estabelecidas no backend
 * **Listagem com Filtros**: Tabelas responsivas com badges coloridos para identificar níveis de permissão (Admin, Gerente, etc.).
 
 ### 📝 Gestão de Tarefas
@@ -43,63 +52,85 @@ O projeto foi construído com um design system personalizado, focado em usabilid
 
 ---
 
-## 🔧 Pré-requisitos
+## Pré-requisitos
 
 Antes de começar, certifique-se de ter instalado em sua máquina:
 * [Node.js](https://nodejs.org/) (Versão 12 ou superior)
 * [NPM](https://www.npmjs.com/) ou Yarn.
-
+* [Python](https://www.python.org/downloads/) ou Yarn.
 ---
 
-## 🚀 Como Rodar o Projeto
+## Como rodar o Projeto
 
-1.  **Clone o repositório:**
-    ```bash
-    git clone [https://github.com/seu-usuario/seu-projeto.git](https://github.com/seu-usuario/seu-projeto.git)
-    cd seu-projeto/frontend
+1.  **Clone o repositório**
+    Utilizando Github Desktop ou linha de comando git
+
+2.  **Crie um arquivo `.env`**
+    Com o conteúdo:
+    ```
+    MONGO_URI="mongodb+srv://usuario:senha@cluster.xxxxx.mongodb.net/database"
+    // Substituta o valor pela URI do seu banco de dados MongoDB
     ```
 
-2.  **Instale as dependências:**
+    Você já deverá ter criado um cluster com as collections membro, tarefa e equipe.
+
+    Para criar uma conta admin com senha admin e conseguir testar, na sua collection membro, cole os seguintes valores em um novo registro:
+    ```
+    login: "admin"
+    senha: Binary.createFromBase64('JDJiJDEyJHFJT0Z5VmpKS0NvNkpBUEE2WEhRZHUxMGJNVFRJTkJ5RDBlQlRoUmdzTHYwbTFZT1haSGtP', 0)
+    auth: "admin"
+    ```
+    
+3.  **Inicie o ambiente virtual Python**
+    Na pasta `backend`, execute
+    ```bash
+    python -m venv venv
+    ```
+
+    E para ativar:
+    ```bash
+    venv\Scripts\Activate
+    ```
+
+4.  **Instale as bibliotecas Python**
+    Ainda no backend e com venv ativado, rode:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+5.  **Suba o backend**
+    ```bash
+    python -m flask run
+    ```
+
+6.  **Instale as dependências do frontend:**
+    Agora, na pasta do frontend:
     ```bash
     npm install
     ```
 
-3.  **Configure a API:**
+7.  **Configure a API:**
     Verifique o arquivo `src/api.js`. Certifique-se de que a `baseURL` aponta para o endereço correto do seu Backend (Python/Flask).
     ```javascript
     // Exemplo em src/api.js
-    baseURL: '[http://127.0.0.1:5000](http://127.0.0.1:5000)'
+    baseURL: '[http://localhost:5000](http://localhost:5000)'
     ```
 
-4.  **Execute o servidor de desenvolvimento:**
+8.  **Execute o servidor de desenvolvimento:**
     ```bash
-    npm run serve
+    npm run dev
     ```
 
-5.  **Acesse a aplicação:**
-    Abra o navegador em `http://localhost:8080` (ou o endereço indicado no terminal).
+9.  **Garanta que o CORS no backend libera a porta correta:**
+    Um erro comum é que o backend não autorize o acesso a suas rotas pelo frontend por uma configuração errada do CORS. 
+    Certifique-se de que, no arquivo `backend/app/__init__.py`, o parâmetro `origins` tenha a mesma porta indicada no terminal ao rodar o frontend (geralmente 8080 ou 8081)
 
-### Comandos Úteis
-* `npm run lint -- --fix`: Verifica e corrige erros de estilo de código (ESLint).
-* `npm run build`: Gera a versão de produção na pasta `dist`.
+    ```bash
+    npm run dev
+    ```
 
----
+10.  **Acesse a aplicação:**
+    Abra o navegador em `http://localhost:8081` (ou o endereço indicado no terminal).
 
-## 📱 Screenshots
-
-*(Adicione aqui os prints das telas do seu projeto)*
-
-| Login | Dashboard |
-|-------|-----------|
-| ![Login](./screenshots/login.png) | ![Dashboard](./screenshots/dashboard.png) |
-
-| Gestão de Membros | Edição de Tarefa |
-|-------|-----------|
-| ![Membros](./screenshots/membros.png) | ![Editar](./screenshots/edit.png) |
 
 ---
-
-# ⚙️ Backend (API)
-
-*(Espaço reservado para a documentação do Python/Flask/MongoDB)*
-...

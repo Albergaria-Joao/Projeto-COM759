@@ -12,26 +12,11 @@ from functools import wraps
 import random
  
 
-# CORS(app, supports_credentials=True)
-
-# CORS(app, resources={r"/*": {"origins": "http://localhost:8081"}}, supports_credentials=True)
-
-# Admin:
-# login admin
-# senha admin
-
-# Peão (sem permissões):
-# login peao
-# senha peao
-
 # OS TEMPLATES AQUI NO BACKEND SÃO SÓ TESTES. O FRONTEND É NO VUE
 
-# @app.before_request
-# def verificar_login():
-#     rotas_livres = ["login", "static"]  # rotas que não exigem login
 
-#     if request.endpoint not in rotas_livres and "username" not in session:
-#         return redirect("/login")
+
+
 
 
 def admin_auth(f):

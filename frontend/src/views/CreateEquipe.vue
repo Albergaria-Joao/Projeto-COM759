@@ -93,6 +93,7 @@ export default {
 
         alert(response.data.mensagem)
         this.$router.push('/equipes')
+        window.location.reload(true)
       } catch (err) {
         console.error(err)
         alert('Erro ao criar equipe.')
