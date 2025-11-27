@@ -51,7 +51,7 @@
                 <td colspan="4" class="empty-state">Nenhuma tarefa.</td>
               </tr>
               <tr v-for="t in tarefasByStatus['A fazer']" :key="t._id.$oid">
-                <td class="task-title">{{ t.nome }}</td>
+                <td class="task-title">{{ t.nome }}</br></br>Prazo: {{ t.prazo ? t.prazo : '—' }}</td>
                 <td class="task-owner">{{ t.membro_login ? t.membro_login : '—' }}</td>
                 <td>
                   <select v-model="t.status" @change="changeStatus(t)" class="status-select">
@@ -93,7 +93,7 @@
                 <td colspan="4" class="empty-state">Nenhuma tarefa.</td>
               </tr>
               <tr v-for="t in tarefasByStatus['Em execução']" :key="t._id.$oid">
-                <td class="task-title">{{ t.nome }}</td>
+                <td class="task-title">{{ t.nome }}</br></br>Prazo: {{ t.prazo ? t.prazo : '—' }}</td>
                 <td class="task-owner">{{ t.membro_login ? t.membro_login : '—' }}</td>
                 <td>
                   <select v-model="t.status" @change="changeStatus(t)" class="status-select">
@@ -135,7 +135,7 @@
                 <td colspan="4" class="empty-state">Nenhuma tarefa.</td>
               </tr>
               <tr v-for="t in tarefasByStatus['Concluída']" :key="t._id.$oid">
-                <td class="task-title">{{ t.nome }}</td>
+                <td class="task-title">{{ t.nome }}</br></br>Prazo: {{ t.prazo ? t.prazo : '—' }}</td>
                 <td class="task-owner">{{ t.membro_login ? t.membro_login : '—' }}</td>
                 <td>
                   <select v-model="t.status" @change="changeStatus(t)" class="status-select">
@@ -207,10 +207,8 @@ export default {
       }
     },
 
-    // --- CORREÇÃO DO ERRO 415 AQUI ---
     async changeStatus (t) {
       try {
-        // MANDA JSON AO INVÉS DE URLSEARCHPARAMS
         const payload = {
           status: t.status
         }
