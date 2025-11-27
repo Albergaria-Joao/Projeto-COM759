@@ -83,7 +83,7 @@
 </template>
 
 <script>
-// A LÓGICA DO SEU AMIGO (ADAPTADA PARA MEMBROS)
+
 import api from '@/api'
 
 export default {
@@ -91,24 +91,23 @@ export default {
 
   data () {
     return {
-      user: null, // Dados do usuario logado (para mostrar na navbar)
-      listaEquipes: [], // Lista para preencher o select
+      user: null, 
+      listaEquipes: [],
 
-      // Objeto com os dados do formulário
       form: {
         nome: '',
         login: '',
         email: '',
         senha: '',
         equipe_id: '',
-        auth: 'peao' // valor padrão
+        auth: 'peao' 
       }
     }
   },
 
   created () {
-    this.fetchUser() // Pega info do localStorage
-    this.fetchEquipes() // Busca as equipes no backend
+    this.fetchUser() 
+    this.fetchEquipes() 
   },
 
   methods: {
@@ -127,7 +126,6 @@ export default {
 
     async fetchEquipes () {
       try {
-        // Envia JSON vazio {} para não dar erro 415
         const response = await api.post('/get-equipes', {})
         this.listaEquipes = response.data
       } catch (err) {
@@ -138,7 +136,6 @@ export default {
 
     async createMembro () {
       try {
-        // Envia o this.form direto como JSON (Igual seu amigo fez)
         const response = await api.post('/create-membro', this.form)
 
         if (response.data.mensagem === 'membro já existe') {

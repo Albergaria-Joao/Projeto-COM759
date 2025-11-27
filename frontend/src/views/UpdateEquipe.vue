@@ -41,7 +41,6 @@
 
       </div>
 
-      <!-- SEM PERMISSÃO -->
       <div v-else class="access-denied-card">
         <div class="icon-lock">🔒</div>
         <h3>Acesso Restrito</h3>
@@ -76,7 +75,6 @@ export default {
   async created () {
     this.fetchUser()
 
-    // ID vindo de ?id=xxxx
     this.id = this.$route.query.id
 
     if (!this.id) {
@@ -104,7 +102,6 @@ export default {
       }
     },
 
-    // Busca dados da equipe para preencher o form
     async fetchEquipe () {
       try {
         const res = await api.post(`/get-equipes/${this.id}`)

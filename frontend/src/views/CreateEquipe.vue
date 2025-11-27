@@ -20,7 +20,6 @@
       </div>
     </header>
 
-    <!-- CONTEÚDO -->
     <main class="content-area">
 
       <div v-if="user && user.auth === 'admin'" class="form-card">

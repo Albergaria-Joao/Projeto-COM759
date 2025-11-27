@@ -149,7 +149,6 @@
                   <button @click="deleteTarefa(t._id.$oid)" class="btn-delete" title="Excluir">✕</button>
                 </td>
                 <td v-else class="action-cell">
-                  <!-- Usuários comuns não veem nada aqui -->
                 </td>
               </tr>
             </tbody>
@@ -217,7 +216,6 @@ export default {
         }
         await api.post(`/update-status-tarefa/${t._id.$oid}`, payload)
 
-        // Atualiza a lista para garantir sincronia
         this.fetchAll()
       } catch (err) {
         console.error('Erro ao mudar status:', err)
@@ -225,7 +223,6 @@ export default {
       }
     },
 
-    // --- NOVO MÉTODO DE EDITAR ---
     editTarefa (id) {
       this.$router.push(`/update-tarefa?id=${id}`)
     },
@@ -234,7 +231,7 @@ export default {
       if (!confirm('Tem certeza que deseja excluir esta tarefa?')) return
 
       try {
-        await api.post(`/delete-tarefa/${id}`, {}) // Manda JSON vazio
+        await api.post(`/delete-tarefa/${id}`, {})
         this.fetchAll()
       } catch (err) {
         console.error('Erro ao excluir:', err)
@@ -244,7 +241,7 @@ export default {
 
     async logout () {
       try {
-        await api.post('/logout', {}) // Manda JSON vazio
+        await api.post('/logout', {}) 
       } catch (err) {
         console.error(err)
       } finally {

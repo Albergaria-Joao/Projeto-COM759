@@ -12,22 +12,16 @@ template_dir = BASE_DIR / "templates"
 app = Flask(__name__, template_folder=str(template_dir))
 app.config.from_object(Config)
 
-# --- ADICIONE ISTO PARA A SESSÃO NÃO CAIR ---
 app.secret_key = "minha_chave_secreta_fixa_para_teste"
-# --------------------------------------------
+
 
 load_dotenv("../../.env")
 
 mongo_uri = os.getenv("MONGO_URI")
 
-# --- CORREÇÃO DO COOKIE AQUI ---
-# Para localhost (HTTP), TEM que ser "Lax" e False.
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = False 
-# -------------------------------
 
-# Configuração do CORS
-# Dica: Adicione o 127.0.0.1 também para garantir
 CORS(app, resources={r"/*": {"origins": ["http://localhost:8081", "http://127.0.0.1:8081"]}}, supports_credentials=True)
 
 mongodb_client = PyMongo(app, uri=mongo_uri)

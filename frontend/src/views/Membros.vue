@@ -116,7 +116,6 @@ export default {
 
     async fetchMembros() {
       try {
-        // CORREÇÃO AQUI: Enviando objeto vazio {} em vez de URLSearchParams
         const res = await api.post('/get-membros', {});
         this.membros = res.data;
       } catch (e) {
@@ -137,7 +136,6 @@ export default {
         return;
       }
       try {
-        // Já estava correto aqui, manteve {}
         const res = await api.post(`/delete-membro/${id}`, {});
         alert(res.data.mensagem || "Membro removido!");
         this.fetchMembros();
@@ -149,7 +147,6 @@ export default {
 
     async logout() {
       try {
-        // CORREÇÃO AQUI TAMBÉM: Enviando objeto vazio {}
         await api.post('/logout', {});
       } catch (err) {
         console.error(err);
