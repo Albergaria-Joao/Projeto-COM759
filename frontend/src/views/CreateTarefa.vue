@@ -3,7 +3,7 @@
 
     <header class="navbar">
       <div class="brand">
-        <h2>Gestão de Membros</h2>
+        <h2>Gestão de Tarefas</h2>
       </div>
       <div class="user-controls">
         <div v-if="user" class="user-info">
@@ -19,60 +19,58 @@
     <main class="content-area">
       <div class="card-container form-card">
         <div class="card-header">
-          <h3>Novo Membro</h3>
+          <h3>Editar Tarefa</h3>
         </div>
 
         <div class="card-body">
-          <form @submit.prevent="createMembro">
+          <form @submit.prevent="createTarefa">
 
             <div class="form-row">
-              <div class="form-group half">
-                <label>Nome Completo</label>
-                <input type="text" v-model="form.nome" required placeholder="Ex: João da Silva">
+              <div class="form-group full">
+                <label>Nome da Tarefa</label>
+                <input type="text" v-model="form.nome" required placeholder="Ex: Corrigir bug do login">
               </div>
+            </div>
 
-              <div class="form-group half">
-                <label>Login (Usuário)</label>
-                <input type="text" v-model="form.login" required placeholder="Ex: joao.silva">
+            <div class="form-row">
+              <div class="form-group full">
+                <label>Descrição</label>
+                <textarea v-model="form.descricao" rows="3" placeholder="Detalhes da tarefa..."></textarea>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group half">
-                <label>Email</label>
-                <input type="email" v-model="form.email" required placeholder="joao@email.com">
+                <label>Prazo</label>
+                <input type="date" v-model="form.prazo" required>
               </div>
 
               <div class="form-group half">
-                <label>Senha</label>
-                <input type="password" v-model="form.senha" required placeholder="******">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group half">
-                <label>Equipe</label>
-                <select v-model="form.equipe_id" required>
-                  <option value="" disabled>Selecione uma equipe</option>
+                <label>Equipe Responsável</label>
+                <select v-model="form.equipe_id" @change="fetchMembros" required>
+                  <option value="" disabled>Selecione a equipe</option>
                   <option v-for="eq in listaEquipes" :key="eq._id.$oid" :value="eq._id.$oid">
                     {{ eq.nome }}
                   </option>
                 </select>
               </div>
+            </div>
 
-              <div class="form-group half">
-                <label>Permissão</label>
-                <select v-model="form.auth" required>
-                  <option value="peao">Peão (Sem permissão)</option>
-                  <option value="gerente">Gerente</option>
-                  <option value="admin" v-if="user.auth === 'admin'">Administrador</option>
+            <div class="form-row">
+              <div class="form-group full">
+                <label>Membro Responsável</label>
+                <select v-model="form.membro_id" required>
+                  <option value="" disabled>Selecione o membro</option>
+                  <option v-for="m in listaMembros" :key="m._id.$oid" :value="m._id.$oid">
+                    {{ m.nome }} ({{ m.login }})
+                  </option>
                 </select>
               </div>
             </div>
 
             <div class="form-actions">
-              <button type="button" class="btn-cancel" @click="$router.push('/membros')">Cancelar</button>
-              <button type="submit" class="btn-save">Salvar Membro</button>
+              <button type="button" class="btn-cancel" @click="$router.push('/dashboard')">Cancelar</button>
+              <button type="submit" class="btn-save">Salvar Alterações</button>
             </div>
 
           </form>
@@ -83,34 +81,36 @@
 </template>
 
 <script>
-// A LÓGICA DO SEU AMIGO (ADAPTADA PARA MEMBROS)
 import api from '@/api'
 
 export default {
-  name: 'CreateMembro',
-
+  name: 'CreateTarefa',
   data () {
     return {
-      user: null, // Dados do usuario logado (para mostrar na navbar)
-      listaEquipes: [], // Lista para preencher o select
-
-      // Objeto com os dados do formulário
+      user: null,
+      id: null,
+      listaEquipes: [],
+      listaMembros: [],
       form: {
         nome: '',
-        login: '',
-        email: '',
-        senha: '',
+        descricao: '',
+        prazo: '',
         equipe_id: '',
-        auth: 'peao' // valor padrão
+        membro_id: ''
       }
     }
   },
-
-  created () {
-    this.fetchUser() // Pega info do localStorage
-    this.fetchEquipes() // Busca as equipes no backend
+  async created () {
+    this.fetchUser()
+    // this.id = this.$route.query.id
+    await this.loadInitialData()
+    // if (this.id) {
+    //   await this.loadInitialData()
+    // } else {
+    //   alert('ID da tarefa não fornecido.')
+    //   this.$router.push('/dashboard')
+    // }
   },
-
   methods: {
     fetchUser () {
       this.user = {
@@ -125,32 +125,64 @@ export default {
       }
     },
 
-    async fetchEquipes () {
+    async loadInitialData () {
       try {
-        // Envia JSON vazio {} para não dar erro 415
-        const response = await api.post('/get-equipes', {})
-        this.listaEquipes = response.data
+        // 1. Carrega Equipes (para o select)
+        const resEquipes = await api.post('/get-equipes', {})
+        this.listaEquipes = resEquipes.data
+
+        console.log(this.listaEquipes)
+        // // 2. Carrega a Tarefa Atual
+        // const resTarefa = await api.post(`/get-tarefas/${this.id}`, {})
+        // const tarefa = resTarefa.data
+
+        // // Preenche o formulário
+        // this.form.nome = tarefa.nome
+        // this.form.descricao = tarefa.descricao
+        // this.form.prazo = tarefa.prazo
+
+        // // 3. Carrega os Membros (baseado na equipe da tarefa)
+        // await this.fetchMembros()
+
+        // Define o membro (depois de carregar a lista)
+        // this.form.membro_id = tarefa.membro_id.$oid || tarefa.membro_id
       } catch (err) {
-        console.error(err)
-        alert('Erro ao carregar lista de equipes.')
+        console.error('Erro ao carregar dados:', err)
+        alert('Erro ao carregar dados da tarefa.')
       }
     },
 
-    async createMembro () {
+    // Busca membros filtrados pela equipe selecionada
+    async fetchMembros () {
+      if (!this.form.equipe_id) return
       try {
-        // Envia o this.form direto como JSON (Igual seu amigo fez)
-        const response = await api.post('/create-membro', this.form)
-
-        if (response.data.mensagem === 'membro já existe') {
-          alert('Erro: Este login já está em uso.')
-          return
-        }
-
-        alert(response.data.mensagem)
-        this.$router.push('/membros')
+        const payload = { equipe_id: this.form.equipe_id }
+        const res = await api.post('/get-membros', payload)
+        this.listaMembros = res.data
       } catch (err) {
         console.error(err)
-        alert('Erro ao criar membro.')
+      }
+    },
+
+    async createTarefa () {
+      try {
+        const payload = {
+          id: this.id,
+          nome: this.form.nome,
+          descricao: this.form.descricao,
+          prazo: this.form.prazo,
+          equipe_id: this.form.equipe_id,
+          membro_id: this.form.membro_id
+        }
+
+        // Envia JSON para evitar erro 415
+        await api.post('/create-tarefa', payload)
+
+        alert('Tarefa criada com sucesso!')
+        this.$router.push('/dashboard')
+      } catch (err) {
+        console.error(err)
+        alert('Erro ao criar tarefa. Verifique se você é Gerente ou Admin.')
       }
     }
   }
@@ -158,13 +190,12 @@ export default {
 </script>
 
 <style scoped>
-/* O DESIGN SYSTEM (MANTIDO PARA FICAR BONITO) */
+/* REUTILIZANDO O DESIGN SYSTEM */
 .page-container {
   display: flex; flex-direction: column; height: 100vh;
   background-color: #f4f6f9; font-family: 'Segoe UI', sans-serif;
 }
 
-/* Navbar */
 .navbar {
   display: flex; justify-content: space-between; align-items: center;
   padding: 0 2rem; height: 60px; color: white;
@@ -183,7 +214,6 @@ export default {
 }
 .btn-nav:hover { background: rgba(255,255,255,0.2); }
 
-/* Conteúdo e Cards */
 .content-area { padding: 40px; display: flex; justify-content: center; }
 
 .card-container {
@@ -191,39 +221,35 @@ export default {
   width: 100%; max-width: 800px; overflow: hidden;
 }
 
-.card-header {
-  padding: 20px; border-bottom: 1px solid #eee; background-color: #fff;
-}
+.card-header { padding: 20px; border-bottom: 1px solid #eee; background-color: #fff; }
 .card-header h3 { margin: 0; color: #2c3e50; font-size: 1.1rem; }
-
 .card-body { padding: 30px; }
 
-/* Formulário */
 .form-row { display: flex; gap: 20px; margin-bottom: 20px; }
 .form-group { margin-bottom: 0; }
 .half { flex: 1; }
+.full { flex: 1; width: 100%; }
 
 .form-group label {
   display: block; margin-bottom: 8px; color: #34495e; font-weight: 600; font-size: 0.9rem;
 }
 
-input, select {
+input, select, textarea {
   width: 100%; padding: 12px; border: 1px solid #dfe6e9; border-radius: 6px;
   font-size: 1rem; color: #2c3e50; background-color: #fcfcfc;
   box-sizing: border-box; transition: border-color 0.3s;
 }
-input:focus, select:focus {
+input:focus, select:focus, textarea:focus {
   outline: none; border-color: #3498db; background-color: white;
 }
 
-/* Botões */
 .form-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
 
 .btn-save {
-  background-color: #27ae60; color: white; border: none; padding: 12px 24px;
+  background-color: #2980b9; color: white; border: none; padding: 12px 24px;
   border-radius: 6px; font-weight: 600; cursor: pointer;
 }
-.btn-save:hover { background-color: #219150; }
+.btn-save:hover { background-color: #21618c; }
 
 .btn-cancel {
   background-color: #ecf0f1; color: #7f8c8d; border: none; padding: 12px 24px;

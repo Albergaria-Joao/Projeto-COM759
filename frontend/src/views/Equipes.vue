@@ -98,7 +98,12 @@ export default {
       this.user = {
         nome: localStorage.getItem('nome'),
         auth: localStorage.getItem('auth'),
-        username: localStorage.getItem('username')
+        username: localStorage.getItem('username'),
+        equipe_id: localStorage.getItem('equipe_id')
+      }
+      if (this.user.auth !== 'admin') {
+        alert('Acesso negado')
+        this.$router.push('/dashboard')
       }
     },
 
@@ -122,6 +127,7 @@ export default {
         localStorage.removeItem('nome')
         localStorage.removeItem('auth')
         localStorage.removeItem('username')
+        localStorage.removeItem('equipe_id')
         this.$router.push('/login')
       }
     },

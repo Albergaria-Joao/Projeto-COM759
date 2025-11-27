@@ -9,6 +9,7 @@ import CreateEquipe from '@/views/CreateEquipe'
 import CreateMembro from '@/views/CreateMembro'
 import UpdateMembro from '@/views/UpdateMembro'
 import UpdateTarefa from '@/views/UpdateTarefa'
+import CreateTarefa from '@/views/CreateTarefa'
 Vue.use(Router)
 
 export default new Router({
@@ -23,6 +24,7 @@ export default new Router({
     { path: '/create-equipe', component: CreateEquipe },
     { path: '/create-membro', component: CreateMembro },
     { path: '/update-membro', component: UpdateMembro },
+    { path: '/create-tarefa', component: CreateTarefa },
     { path: '/update-tarefa', component: UpdateTarefa }
   ]
 })

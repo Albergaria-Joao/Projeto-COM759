@@ -115,7 +115,13 @@ export default {
     fetchUser () {
       this.user = {
         nome: localStorage.getItem('nome'),
-        auth: localStorage.getItem('auth')
+        auth: localStorage.getItem('auth'),
+        username: localStorage.getItem('username'),
+        equipe_id: localStorage.getItem('equipe_id')
+      }
+      if (this.user.auth !== 'admin' && this.user.auth !== 'gerente') {
+        alert('Acesso negado')
+        this.$router.push('/dashboard')
       }
     },
 

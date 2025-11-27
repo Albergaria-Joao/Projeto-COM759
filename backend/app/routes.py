@@ -86,8 +86,10 @@ def login():
         session["username"] = user["login"]
         session["nome"] = user["nome"]
         session["auth"] = user["auth"]
+        session["equipe_id"] = user["equipe_id"]
+        print(user["equipe_id"])
         print("tentou logar")
-        return jsonify(status=200, username=user["login"], nome=user["nome"], auth=user["auth"])
+        return jsonify(status=200, username=user["login"], nome=user["nome"], auth=user["auth"], equipe_id=user["equipe_id"])
     else:
         return jsonify(status=403,mensagem='login falhou')
             
@@ -131,7 +133,7 @@ def criar_membro_db(dados):
     #
 
 @app.route('/create-membro', methods=['GET', 'POST'])
-@admin_auth
+@gerente_auth
 def create_membro():
     json_data = request.get_json()
     #criar_membro()

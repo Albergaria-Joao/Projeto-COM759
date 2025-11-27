@@ -83,7 +83,8 @@ export default {
         // console.log('username salvo:', localStorage.getItem('username'))
         localStorage.setItem('nome', usuario.nome)
         localStorage.setItem('auth', usuario.auth)
-
+        localStorage.setItem('equipe_id', usuario.equipe_id.$oid)
+        console.log(localStorage.getItem('equipe_id'))
         this.$router.push('/dashboard')
       } catch (error) {
         this.error = 'Erro ao conectar ao servidor.'

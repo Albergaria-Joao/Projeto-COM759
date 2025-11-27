@@ -21,7 +21,7 @@
         <div class="card-header">
           <h3>Membros Cadastrados</h3>
           <div class="header-actions">
-            <button v-if="user && user.auth === 'admin'" @click="goToCreate" class="btn-create">
+            <button v-if="user" @click="goToCreate" class="btn-create">
               + Criar Membro
             </button>
             <span class="count-badge">{{ membrosFiltered.length }} usuários</span>
@@ -105,7 +105,12 @@ export default {
       this.user = {
         nome: localStorage.getItem('nome'),
         auth: localStorage.getItem('auth'),
-        username: localStorage.getItem('username')
+        username: localStorage.getItem('username'),
+        equipe_id: localStorage.getItem('equipe_id')
+      }
+      if (this.user.auth !== 'admin' && this.user.auth !== 'gerente') {
+        alert("Acesso negado")
+        this.$router.push('/dashboard')
       }
     },
 
@@ -152,6 +157,7 @@ export default {
         localStorage.removeItem('nome')
         localStorage.removeItem('auth')
         localStorage.removeItem('username')
+        localStorage.removeItem('equipe_id')
         this.$router.push('/login');
       }
     },

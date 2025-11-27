@@ -16,9 +16,6 @@
         <button @click="$router.push('/dashboard')" class="btn-nav">
           Voltar ao Dashboard
         </button>
-        <button @click="logout" class="btn-logout">
-          Sair
-        </button>
       </div>
     </header>
 
@@ -98,7 +95,12 @@ export default {
       this.user = {
         nome: localStorage.getItem('nome'),
         auth: localStorage.getItem('auth'),
-        username: localStorage.getItem('username')
+        username: localStorage.getItem('username'),
+        equipe_id: localStorage.getItem('equipe_id')
+      }
+      if (this.user.auth !== 'admin') {
+        alert('Acesso negado')
+        this.$router.push('/dashboard')
       }
     },
 
@@ -130,18 +132,6 @@ export default {
       } catch (err) {
         console.error('Erro ao atualizar:', err)
         alert('Não foi possível atualizar a equipe.')
-      }
-    },
-
-    async logout () {
-      try {
-        const params = new URLSearchParams()
-        await api.post('/logout', params)
-      } catch (err) {
-        console.error(err)
-      } finally {
-        localStorage.removeItem('usuario_app')
-        this.$router.push('/login')
       }
     }
   }

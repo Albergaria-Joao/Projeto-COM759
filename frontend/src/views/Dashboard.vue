@@ -10,12 +10,22 @@
           <span class="user-name">{{ user.nome }}</span>
           <span class="user-role">{{ user.auth }}</span>
         </div>
+        <button @click="$router.push('/create-tarefa')" class="btn-create" v-if="user.auth === 'admin' || user.auth === 'gerente'">
+          + Criar nova tarefa
+        </button>
+        <button @click="$router.push('/membros')" class="btn-refresh" v-if="user.auth === 'admin' || user.auth === 'gerente'">
+          Ir para membros
+        </button>
+        <button @click="$router.push('/equipes')" class="btn-refresh" v-if="user.auth === 'admin'">
+          Ir para equipes
+        </button>
         <button @click="fetchAll" class="btn-refresh">
           Atualizar
         </button>
         <button @click="logout" class="btn-logout">
           Sair
         </button>
+
       </div>
     </header>
 
@@ -50,9 +60,12 @@
                     <option>Concluída</option>
                   </select>
                 </td>
-                <td class="action-cell">
+                <td class="action-cell" v-if="user.auth === 'admin' || user.auth === 'gerente'">
                   <button @click="editTarefa(t._id.$oid)" class="btn-edit" title="Editar">✎</button>
                   <button @click="deleteTarefa(t._id.$oid)" class="btn-delete" title="Excluir">✕</button>
+                </td>
+                <td v-else class="action-cell">
+                  <!-- Usuários comuns não veem nada aqui -->
                 </td>
               </tr>
             </tbody>
@@ -89,9 +102,12 @@
                     <option>Concluída</option>
                   </select>
                 </td>
-                <td class="action-cell">
+                <td class="action-cell" v-if="user.auth === 'admin' || user.auth === 'gerente'">
                   <button @click="editTarefa(t._id.$oid)" class="btn-edit" title="Editar">✎</button>
                   <button @click="deleteTarefa(t._id.$oid)" class="btn-delete" title="Excluir">✕</button>
+                </td>
+                <td v-else class="action-cell">
+                  <!-- Usuários comuns não veem nada aqui -->
                 </td>
               </tr>
             </tbody>
@@ -128,9 +144,12 @@
                     <option>Concluída</option>
                   </select>
                 </td>
-                <td class="action-cell">
+                <td class="action-cell" v-if="user.auth === 'admin' || user.auth === 'gerente'">
                   <button @click="editTarefa(t._id.$oid)" class="btn-edit" title="Editar">✎</button>
                   <button @click="deleteTarefa(t._id.$oid)" class="btn-delete" title="Excluir">✕</button>
+                </td>
+                <td v-else class="action-cell">
+                  <!-- Usuários comuns não veem nada aqui -->
                 </td>
               </tr>
             </tbody>
@@ -174,10 +193,12 @@ export default {
       this.user = {
         nome: localStorage.getItem('nome'),
         auth: localStorage.getItem('auth'),
-        username: localStorage.getItem('username')
+        username: localStorage.getItem('username'),
+        equipe_id: localStorage.getItem('equipe_id')
       }
+      console.log(this.user)
+      if (!this.user.nome || !this.user.auth) this.$router.push('/login')
     },
-
     async fetchAll () {
       try {
         const res = await api.post('/get-tarefas', {})
@@ -230,6 +251,7 @@ export default {
         localStorage.removeItem('nome')
         localStorage.removeItem('auth')
         localStorage.removeItem('username')
+        localStorage.removeItem('equipe_id')
         this.$router.push('/login')
       }
     }
@@ -264,6 +286,7 @@ export default {
   font-size: 1.2rem;
   font-weight: 600;
   letter-spacing: 0.5px;
+  display: inline-block;
 }
 
 .user-controls {
@@ -302,6 +325,18 @@ export default {
   transition: all 0.2s;
 }
 
+.btn-create {
+  padding: 8px 16px;
+  margin-left: 1vw;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  border: 1px solid rgba(255,255,255,0.3);
+  background-color: #27ae60;
+  color: white;
+  transition: all 0.2s;
+}
+
 .btn-refresh:hover {
   background: rgba(255,255,255,0.2);
 }
@@ -309,6 +344,10 @@ export default {
 .btn-logout:hover {
   background: #c0392b;
   border-color: #c0392b;
+}
+
+.btn-create:hover {
+  background: #219150;
 }
 
 /* Área Principal (Kanban) */
