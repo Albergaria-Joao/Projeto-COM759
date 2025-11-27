@@ -25,9 +25,18 @@ import random
 
 # OS TEMPLATES AQUI NO BACKEND SÃO SÓ TESTES. O FRONTEND É NO VUE
 
+# @app.before_request
+# def verificar_login():
+#     rotas_livres = ["login", "static"]  # rotas que não exigem login
+
+#     if request.endpoint not in rotas_livres and "username" not in session:
+#         return redirect("/login")
+
+
 def admin_auth(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
+        print(dict(session))
         if "auth" not in session or session["auth"] != "admin":
             return jsonify(mensagem="Acao nao autorizada")
         return f(*args, **kwargs)
@@ -36,17 +45,15 @@ def admin_auth(f):
 def gerente_auth(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
+        print(dict(session))
         if "auth" not in session or (session["auth"] != "gerente" and session["auth"] != "admin"):
             return jsonify(mensagem="Acao nao autorizada")
         return f(*args, **kwargs)
     return wrapper
 
-@app.before_request
-def verificar_login():
-    rotas_livres = ["login", "static"]  # rotas que não exigem login
-
-    if request.endpoint not in rotas_livres and "username" not in session:
-        return redirect("/login")
+@app.route('/debug-session')
+def debug_session():
+    return jsonify(dict(session))
 
 @app.route('/')
 @app.route('/index')
@@ -125,7 +132,7 @@ def criar_membro_db(dados):
 @app.route('/create-membro', methods=['GET', 'POST'])
 @admin_auth
 def create_membro():
-    json_data = request.form.to_dict()
+    json_data = request.get_json()
     #criar_membro()
     if request.method == 'GET':
         return render_template("create_membro.html")
@@ -182,7 +189,7 @@ def get_membros(membroId=None):
 
     membros = join_membros()
 
-    json_data = request.form.to_dict()
+    json_data = request.get_json()
 
     if json_data.get("equipe_id") is None: # Se quiser pegar todos os membros, não passar id da equipe
         return jsonify(json.loads(json_util.dumps(membros)))
@@ -200,7 +207,7 @@ def update_membro():
     if request.method == 'GET':
         return render_template("update_membro.html")
 
-    json_data = request.form.to_dict()
+    json_data = request.get_json()
     json_data["equipe_id"] = ObjectId(json_data["equipe_id"]) 
     if json_data is not None and db.membro.find_one({"_id": ObjectId(json_data["id"])}) is not None:
         db.membro.update_one({'_id': ObjectId(json_data["id"])}, 
@@ -248,7 +255,7 @@ def create_tarefa():
     if request.method == 'GET':
         return render_template("create_tarefa.html")
 
-    json_data = request.form.to_dict()
+    json_data = request.get_json()
     if json_data is not None:
         
         now = datetime.now()
@@ -325,7 +332,7 @@ def get_tarefas(tarefaId=None):
         tarefa = db.tarefa.find_one({"_id": ObjectId(tarefaId)})
         return jsonify(json.loads(json_util.dumps(tarefa)))
     
-    json_data = request.form.to_dict()
+    json_data = request.get_json()
 
 
     if json_data.get("equipe_id") is None: # Se quiser pegar todas as tarefas, não passar id da equipe
@@ -349,7 +356,7 @@ def update_tarefa():
         return render_template("update_tarefa.html")
     
 
-    json_data = request.form.to_dict()
+    json_data = request.get_json()
     json_data["membro_id"] = ObjectId(json_data["membro_id"])
     json_data["equipe_id"] = ObjectId(json_data["equipe_id"])  
     if json_data is not None and db.tarefa.find_one({"_id": ObjectId(json_data["id"])}) is not None:
@@ -363,7 +370,7 @@ def update_tarefa():
 @app.route('/update-status-tarefa/<string:tarefaId>', methods=['POST'])
 def update_status_tarefa(tarefaId):
 
-    json_data = request.form.to_dict()
+    json_data = request.get_json()
     
 
     if (json_data["status"] == "Concluída"):
@@ -392,15 +399,15 @@ def delete_tarefa(tarefaId):
 
 # EQUIPE
 
-@app.route('/create-equipe', methods=['GET', 'POST'])
+@app.route('/create-equipe', methods=['POST'])
 @admin_auth
 def create_equipe():
-    
+    print(dict(session))
     #criar_membro()
     if request.method == 'GET':
         return render_template("create_equipe.html")
 
-    json_data = request.form.to_dict()
+    json_data = request.get_json()
     #json_data["criacao"] = now
 
     if json_data is not None:
@@ -421,7 +428,7 @@ def create_equipe():
 @app.route('/get-equipes', methods=['POST'])
 @app.route('/get-equipes/<string:equipeId>', methods=['POST'])
 def get_equipes(equipeId=None):
-
+    print(dict(session))
     if equipeId is not None:
         equipe = db.equipe.find_one({"_id": ObjectId(equipeId)})
         return jsonify(json.loads(json_util.dumps(equipe)))
@@ -434,7 +441,7 @@ def update_equipe():
     if request.method == 'GET':
         return render_template("update_equipe.html")
 
-    json_data = request.form.to_dict()
+    json_data = request.get_json()
     if json_data is not None and db.equipe.find_one({"_id": ObjectId(json_data["id"])}) is not None:
         db.equipe.update_one({'_id': ObjectId(json_data["id"])}, 
                               {"$set": {'nome': json_data["nome"], 'descricao': json_data["descricao"]}})
@@ -449,6 +456,6 @@ def delete_equipe(equipeId):
     
     result = db.equipe.delete_one({"_id": ObjectId(equipeId)})
     if(result.deleted_count > 0):
-        return jsonify(mensagem='equipe removido')
+        return jsonify(mensagem='Equipe removida')
     else:
-        return jsonify(mensagem='equipe não removido')
+        return jsonify(mensagem='Equipe não removida')

@@ -125,7 +125,9 @@ export default {
       } catch (err) {
         console.error(err);
       } finally {
-        localStorage.removeItem('usuario_app');
+        localStorage.removeItem('nome')
+        localStorage.removeItem('auth')
+        localStorage.removeItem('username')
         this.$router.push('/login');
       }
     },

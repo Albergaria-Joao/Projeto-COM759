@@ -17,8 +17,11 @@ load_dotenv("../../.env")
 mongo_uri = os.getenv("MONGO_URI")
 
 # CORS(app, supports_credentials=True)
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["SESSION_COOKIE_SECURE"] = False  # true se usar HTTPS
 
-CORS(app, resources={r"/*": {"origins": "http://localhost:8081"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": ["http://localhost:8081"]}}, supports_credentials=True, allow_headers="*")
+
 mongodb_client = PyMongo(app, 
                          uri=mongo_uri)
 db = mongodb_client.db

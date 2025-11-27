@@ -193,8 +193,7 @@ export default {
     async fetchAll () {
       try {
         // Envia params vazio para garantir header correto no backend
-        const params = new URLSearchParams()
-        const res = await api.post('/get-tarefas', params)
+        const res = await api.post('/get-tarefas', {})
 
         // O Axios geralmente converte o JSON automaticamente
         this.tarefas = res.data
@@ -242,7 +241,9 @@ export default {
         console.error(err)
       } finally {
         // Limpa o usuário simulado e redireciona
-        localStorage.removeItem('usuario_app')
+        localStorage.removeItem('nome')
+        localStorage.removeItem('auth')
+        localStorage.removeItem('username')
         this.$router.push('/login')
       }
     }

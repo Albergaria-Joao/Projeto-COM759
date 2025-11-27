@@ -24,6 +24,7 @@
       <div v-if="user && user.auth === 'admin'" class="card-container">
         <div class="card-header">
           <h3>Equipes Cadastradas</h3>
+          <button @click="goToCreate">Criar Equipe</button>
           <span class="badge">{{ equipes.length }} equipes</span>
         </div>
 
@@ -42,6 +43,18 @@
               <tr v-for="e in equipes" :key="e._id.$oid">
                 <td class="team-name">{{ e.nome }}</td>
                 <td class="team-desc">{{ e.descricao }}</td>
+                <!-- BOTÕES -->
+                <td class="actions-cell">
+                  <button class="btn-edit"
+                          @click="editarEquipe(e._id.$oid)">
+                    ✏️ Editar
+                  </button>
+
+                  <button class="btn-delete"
+                          @click="deletarEquipe(e._id.$oid)">
+                    🗑️ Excluir
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -114,10 +127,44 @@ export default {
       } catch (err) {
         console.error(err)
       } finally {
-        localStorage.removeItem('usuario_app')
+        localStorage.removeItem('nome')
+        localStorage.removeItem('auth')
+        localStorage.removeItem('username')
         this.$router.push('/login')
       }
+    },
+
+    editarEquipe (id) {
+      this.$router.push(`/update-equipe?id=${id}`)
+    },
+
+    goToCreate () {
+      this.$router.push("/create-equipe");
+    },
+
+    async deletarEquipe(id) {
+      if (!confirm("Tem certeza que deseja excluir esta equipe?")) {
+        return
+      }
+
+      try {
+        const payload = new URLSearchParams()
+        payload.append("id", id)
+
+        const res = await api.post(`/delete-equipe/${id}`, {})
+
+        alert(res.data.mensagem || "Equipe removida!")
+
+        // Atualiza tabela
+        this.fetchEquipes()
+
+      } catch (err) {
+        console.error("Erro ao excluir equipe:", err)
+        alert("Erro ao excluir.")
+      }
     }
+
+
   }
 }
 </script>
